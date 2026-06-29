@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terminal - Misiones Transports</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --navy: #1a2744; --orange: #c0511a; --white: #ffffff; --text: #111827; --muted: #6b7280; --light: #f3f4f6; }
+  body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--white); }
+
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 56px; background: var(--white); border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 100; }
+  .nav-brand { display: flex; align-items: center; gap: .5rem; font-weight: 700; font-size: 1rem; color: var(--text); text-decoration: none; }
+  .nav-links { display: flex; gap: 2rem; align-items: center; }
+  .nav-links a { text-decoration: none; color: var(--muted); font-size: .9rem; font-weight: 500; }
+  .nav-links a.active { color: var(--orange); border-bottom: 2px solid var(--orange); padding-bottom: 2px; }
+  .nav-links a:hover { color: var(--text); }
+  .btn-access { background: var(--navy); color: var(--white); border: none; border-radius: 6px; padding: .45rem 1rem; font-size: .82rem; font-weight: 600; cursor: pointer; }
+
+  .hero { background: linear-gradient(135deg, var(--navy) 0%, #2d3a5a 100%); padding: 2.5rem 2rem; color: var(--white); }
+  .hero-inner { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; }
+  .hero h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: .3rem; }
+  .hero p { color: rgba(255,255,255,.7); font-size: .88rem; max-width: 500px; line-height: 1.5; }
+  .live-badge { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 8px; padding: .75rem 1.25rem; font-size: .8rem; color: var(--white); }
+  .live-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #22c55e; margin-right: .4rem; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+
+  .main { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+
+  .map-card { border: 1.5px solid #e5e7eb; border-radius: 16px; overflow: hidden; margin-bottom: 2rem; }
+  .map-card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid #e5e7eb; }
+  .map-card-header h2 { font-size: 1rem; font-weight: 700; }
+  .map-subtitle { font-size: .72rem; color: var(--muted); margin-top: .15rem; }
+  .terminal-map { padding: 1.5rem; background: #fafafa; }
+
+  .sector-block { margin-bottom: 3rem; }
+  .sector-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .4rem; }
+  .sector-title { display: flex; align-items: center; gap: .75rem; }
+  .sector-icon-wrap { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font-size: 1.3rem; }
+  .sector-title h2 { font-size: 1.2rem; font-weight: 700; }
+  .sector-title p { font-size: .8rem; color: var(--muted); margin-top: .1rem; }
+  .open-badge { background: #dcfce7; color: #166534; font-size: .72rem; font-weight: 700; padding: .25rem .75rem; border-radius: 20px; }
+  .closed-badge { background: #fee2e2; color: #991b1b; font-size: .72rem; font-weight: 700; padding: .25rem .75rem; border-radius: 20px; }
+
+  .sector-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.6rem; margin-top: 1.6rem; }
+  @media(max-width:700px){ .sector-cards { grid-template-columns: 1fr; } }
+
+  .detail-card { border: 1.5px solid #e5e7eb; border-radius: 12px; padding: 1.1rem; }
+  .detail-card h4 { font-size: .9rem; font-weight: 700; margin-bottom: .5rem; }
+  .detail-tags { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .65rem; }
+  .tag { font-size: .65rem; font-weight: 600; padding: .15rem .5rem; border-radius: 20px; }
+  .detail-rows { display: flex; flex-direction: column; gap: .35rem; }
+  .detail-row { display: flex; align-items: flex-start; gap: .5rem; font-size: .78rem; color: var(--muted); line-height: 1.4; }
+  .detail-row .dr-icon { flex-shrink: 0; font-size: .85rem; }
+
+  .realtime-card { border: 1.5px solid #e5e7eb; border-radius: 12px; overflow: hidden; margin-bottom: 2rem; }
+  .realtime-header { padding: 1rem 1.25rem; background: var(--navy); color: var(--white); display: flex; justify-content: space-between; align-items: center; }
+  .realtime-header h3 { font-size: .9rem; font-weight: 700; }
+  .realtime-header p { font-size: .72rem; color: rgba(255,255,255,.65); }
+  .realtime-grid { display: grid; grid-template-columns: repeat(4,1fr); }
+  @media(max-width:640px){ .realtime-grid { grid-template-columns: repeat(2,1fr); } }
+  .realtime-item { padding: .85rem 1.25rem; border-right: 1px solid #f3f4f6; border-bottom: 1px solid #f3f4f6; }
+  .rt-left h4 { font-size: .82rem; font-weight: 600; margin-bottom: .1rem; }
+  .rt-left span { font-size: .72rem; color: var(--muted); }
+  .rt-time { font-size: .9rem; font-weight: 700; color: var(--navy); margin-top: .3rem; }
+  .rt-plat { font-size: .68rem; font-weight: 700; padding: .15rem .5rem; border-radius: 4px; margin-top: .2rem; display: inline-block; }
+  .plat-ok { background: #dcfce7; color: #166534; }
+  .plat-delay { background: #fef3c7; color: #92400e; }
+  .plat-prog { background: #e0f2fe; color: #075985; }
+  .ver-todos { padding: .85rem 1.25rem; border-top: 1px solid #f3f4f6; }
+  .ver-todos a { color: var(--orange); font-size: .82rem; font-weight: 600; text-decoration: none; }
+
+  .chat-btn { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--orange); color: var(--white); border: none; border-radius: 50px; padding: .75rem 1.25rem; font-size: .85rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(192,81,26,.4); z-index: 99; display: flex; align-items: center; gap: .4rem; }
+  .chat-window { position: fixed; bottom: 5rem; right: 1.5rem; width: 320px; background: var(--white); border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,.15); z-index: 98; display: none; flex-direction: column; overflow: hidden; border: 1px solid #e5e7eb; }
+  .chat-window.open { display: flex; }
+  .chat-header { background: var(--navy); color: var(--white); padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; }
+  .chat-header h4 { font-size: .9rem; font-weight: 700; }
+  .chat-header span { font-size: .72rem; color: rgba(255,255,255,.65); }
+  .chat-close { background: none; border: none; color: var(--white); cursor: pointer; font-size: 1.1rem; }
+  .chat-messages { padding: 1rem; height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: .6rem; }
+  .msg { padding: .6rem .85rem; border-radius: 10px; font-size: .82rem; max-width: 85%; line-height: 1.4; }
+  .msg.bot { background: var(--light); color: var(--text); align-self: flex-start; border-bottom-left-radius: 2px; }
+  .msg.user { background: var(--navy); color: var(--white); align-self: flex-end; border-bottom-right-radius: 2px; }
+  .chat-suggestions { display: flex; flex-wrap: wrap; gap: .4rem; padding: 0 1rem .75rem; }
+  .suggestion { background: var(--light); border: 1px solid #e5e7eb; border-radius: 20px; padding: .3rem .75rem; font-size: .75rem; cursor: pointer; }
+  .suggestion:hover { background: #e5e7eb; }
+  .chat-input-row { display: flex; gap: .5rem; padding: .75rem 1rem; border-top: 1px solid #e5e7eb; }
+  .chat-input { flex: 1; border: 1.5px solid #e5e7eb; border-radius: 8px; padding: .5rem .75rem; font-size: .82rem; font-family: 'Inter', sans-serif; outline: none; }
+  .chat-input:focus { border-color: var(--navy); }
+  .chat-send { background: var(--orange); color: var(--white); border: none; border-radius: 8px; padding: .5rem .85rem; cursor: pointer; font-size: .85rem; }
+
+  footer { background: var(--navy); color: rgba(255,255,255,.6); padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-top: 3rem; }
+  .footer-brand { color: var(--white); font-weight: 700; font-size: .9rem; }
+  .footer-copy { font-size: .72rem; margin-top: .2rem; }
+  .footer-links { display: flex; gap: 1.5rem; }
+  .footer-links a { color: rgba(255,255,255,.6); text-decoration: none; font-size: .75rem; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html"> Misiones Transports</a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="rutas.html">Rutas</a>
+    <a href="horarios.html">Horarios</a>
+    <a href="terminal.html" class="active">Terminal</a>
+    <a href="accesibilidad.html">Accesibilidad</a>
+  </div>
+  <button class="btn-access"> Accesibilidad</button>
+</nav>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <h1>Centro de Operaciones Misiones</h1>
+      <p>Gestión centralizada de transportes, flujos de pasajeros y conexiones regionales en tiempo real.</p>
+    </div>
+    <div class="live-badge"><span class="live-dot"></span> Actualizado ahora mismo</div>
+  </div>
+</section>
+
+<div class="main">
+
+  
+  <div class="map-card">
+    <div class="map-card-header">
+      <h2>🗺️ Mapa del Centro de Transporte</h2>
+      <p class="map-subtitle">PLATAFORMAS · ESPERA · ACCESIBILIDAD · SERVICIOS</p>
+    </div>
+    <div class="terminal-map">
+      <svg viewBox="0 0 750 500" width="100%" xmlns="http://www.w3.org/2000/svg" style="border-radius:8px">
+        <rect width="750" height="500" fill="#f0f4f8" rx="12"/>
+        <rect x="15" y="15" width="130" height="470" rx="10" fill="#e0f2fe" stroke="#7dd3fc" stroke-width="1.5"/>
+        <text x="30" y="260" text-anchor="middle" font-size="9" font-weight="700" fill="#0369a1" font-family="Inter" transform="rotate(-90 30 260)">ZONA DE ANDENES</text>
+        <text x="80" y="55" text-anchor="middle" font-size="18" font-family="Inter">🚌</text>
+        <text x="80" y="75" text-anchor="middle" font-size="8" fill="#0284c7" font-family="Inter">01–04</text>
+        <line x1="15" y1="175" x2="145" y2="175" stroke="#7dd3fc" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="80" y="200" text-anchor="middle" font-size="18" font-family="Inter">🚌</text>
+        <text x="80" y="218" text-anchor="middle" font-size="8" fill="#0284c7" font-family="Inter">05–08</text>
+        <line x1="15" y1="300" x2="145" y2="300" stroke="#7dd3fc" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="80" y="328" text-anchor="middle" font-size="18" font-family="Inter">🚌</text>
+        <text x="80" y="346" text-anchor="middle" font-size="8" fill="#0284c7" font-family="Inter">09–12</text>
+        <line x1="15" y1="400" x2="145" y2="400" stroke="#7dd3fc" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="80" y="428" text-anchor="middle" font-size="18" font-family="Inter">🚌</text>
+        <text x="80" y="446" text-anchor="middle" font-size="8" fill="#0284c7" font-family="Inter">13–15</text>
+        <rect x="160" y="15" width="440" height="90" rx="10" fill="#fef3c7" stroke="#fcd34d" stroke-width="1.5" stroke-dasharray="6,3"/>
+        <text x="380" y="52" text-anchor="middle" font-size="18" font-family="Inter">🍽️</text>
+        <text x="380" y="72" text-anchor="middle" font-size="12" font-weight="700" fill="#92400e" font-family="Inter">ZONA GASTRONÓMICA</text>
+        <text x="380" y="88" text-anchor="middle" font-size="9" fill="#b45309" font-family="Inter">Locales · Cafetería · Snack Bar</text>
+        <rect x="160" y="120" width="200" height="140" rx="10" fill="#f3e8ff" stroke="#d8b4fe" stroke-width="1.5" stroke-dasharray="6,3"/>
+        <text x="260" y="185" text-anchor="middle" font-size="18" font-family="Inter">🪑</text>
+        <text x="260" y="207" text-anchor="middle" font-size="12" font-weight="700" fill="#6b21a8" font-family="Inter">SALA DE ESPERA</text>
+        <text x="260" y="225" text-anchor="middle" font-size="9" fill="#7c3aed" font-family="Inter">VIP · General</text>
+        
+        <rect x="375" y="120" width="225" height="140" rx="10" fill="#fce7f3" stroke="#f9a8d4" stroke-width="1.5" stroke-dasharray="6,3"/>
+        <text x="487" y="185" text-anchor="middle" font-size="18" font-family="Inter">ℹ️</text>
+        <text x="487" y="207" text-anchor="middle" font-size="12" font-weight="700" fill="#9d174d" font-family="Inter">OFICINAS INFO</text>
+        <text x="487" y="225" text-anchor="middle" font-size="9" fill="#be185d" font-family="Inter">Atención al pasajero</text>
+        
+        <rect x="160" y="295" width="95" height="80" rx="10" fill="#ecfdf5" stroke="#6ee7b7" stroke-width="1.5"/>
+        <text x="207" y="325" text-anchor="middle" font-size="18" font-family="Inter">🚻</text>
+        <text x="207" y="344" text-anchor="middle" font-size="10" font-weight="700" fill="#065f46" font-family="Inter">BAÑOS</text>
+        <text x="207" y="360" text-anchor="middle" font-size="8" fill="#047857" font-family="Inter"> Accesible</text>
+        
+        <rect x="265" y="295" width="335" height="80" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+        <text x="432" y="325" text-anchor="middle" font-size="18" font-family="Inter">🚪</text>
+        <text x="432" y="345" text-anchor="middle" font-size="12" font-weight="700" fill="#166534" font-family="Inter">HALL CENTRAL</text>
+        <text x="432" y="362" text-anchor="middle" font-size="9" fill="#15803d" font-family="Inter">Boletería · Informes · Acceso principal</text>
+        
+        <rect x="160" y="390" width="440" height="95" rx="10" fill="#fff1f2" stroke="#fda4af" stroke-width="1.5"/>
+        <text x="380" y="420" text-anchor="middle" font-size="18" font-family="Inter">🚪</text>
+        <text x="380" y="442" text-anchor="middle" font-size="12" font-weight="700" fill="#9f1239" font-family="Inter">ACCESOS PRINCIPALES</text>
+        <text x="380" y="460" text-anchor="middle" font-size="9" fill="#be123c" font-family="Inter">Entrada Norte · Entrada Sur · Rampa </text>
+        <text x="380" y="476" text-anchor="middle" font-size="9" fill="#be123c" font-family="Inter">↑ Calle · Estacionamiento</text>
+        
+        <rect x="615" y="15" width="120" height="470" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+        <text x="675" y="380" text-anchor="middle" font-size="9" font-weight="700" fill="#166534" font-family="Inter" transform="rotate(90 675 380)">ESTACIONAMIENTO</text>
+        <text x="675" y="180" text-anchor="middle" font-size="24" font-family="Inter">🅿️</text>
+        <text x="675" y="205" text-anchor="middle" font-size="8" fill="#15803d" font-family="Inter">Nivel 0</text>
+        <text x="675" y="220" text-anchor="middle" font-size="8" fill="#15803d" font-family="Inter">24 horas</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="realtime-card">
+    <div class="realtime-header">
+      <div><h3>Horarios en Tiempo Real</h3></div>
+      <p>Próximas salidas desde Retiro</p>
+    </div>
+    <div class="realtime-grid">
+      <div class="realtime-item"><div class="rt-left"><h4>Posadas Directo</h4><span>Plataforma 04</span></div><div class="rt-time">09:45</div><span class="rt-plat plat-ok">A TIEMPO</span></div>
+      <div class="realtime-item"><div class="rt-left"><h4>Iguazú Express</h4><span>Plataforma 12</span></div><div class="rt-time">10:15</div><span class="rt-plat plat-prog">PROGRAMADO</span></div>
+      <div class="realtime-item"><div class="rt-left"><h4>Oberá Local</h4><span>Plataforma 02</span></div><div class="rt-time">10:45</div><span class="rt-plat plat-delay">DEMORADO 10m</span></div>
+      <div class="realtime-item"><div class="rt-left"><h4>Eldorado Rápido</h4><span>Plataforma 07</span></div><div class="rt-time">11:00</div><span class="rt-plat plat-prog">PROGRAMADO</span></div>
+    </div>
+    <div class="ver-todos"><a href="horarios.html">Ver Todos los Horarios →</a></div>
+  </div>
+
+  <div class="sector-block">
+    <div class="sector-header">
+      <div class="sector-title">
+        <div class="sector-icon-wrap" style="background:#ecfdf5">🚻</div>
+        <div><h2>Sanitarios</h2><p>Baños públicos gratuitos en toda la terminal</p></div>
+      </div>
+      <span class="open-badge">Abierto ahora</span>
+    </div>
+    <div class="sector-cards">
+      <div class="detail-card">
+        <h4>Baños Planta Baja — Sector A</h4>
+        <div class="detail-tags">
+          <span class="tag" style="background:#dbeafe;color:#1e40af">Damas</span>
+          <span class="tag" style="background:#dbeafe;color:#1e40af">Caballeros</span>
+          <span class="tag" style="background:#dcfce7;color:#166534">PMR </span>
+        </div>
+        <div class="detail-rows">
+          <div class="detail-row"><span class="dr-icon">🕐</span>Abierto las 24 horas, todos los días</div>
+          <div class="detail-row"><span class="dr-icon">📍</span>Entrada principal, lado derecho del hall</div>
+          <div class="detail-row"><span class="dr-icon">♿</span>Accesible para personas con discapacidad · Cambiador de bebés</div>
+        </div>
+      </div>
+      <div class="detail-card">
+        <h4>Baños Andenes — Sector B</h4>
+        <div class="detail-tags">
+          <span class="tag" style="background:#dbeafe;color:#1e40af">Damas</span>
+          <span class="tag" style="background:#dbeafe;color:#1e40af">Caballeros</span>
+        </div>
+        <div class="detail-rows">
+          <div class="detail-row"><span class="dr-icon">🕐</span>Lun a Dom: 05:00 – 23:30</div>
+          <div class="detail-row"><span class="dr-icon">📍</span>Zona de andenes, frente a Andén 3</div>
+          <div class="detail-row"><span class="dr-icon">🚿</span>Duchas disponibles para viajeros de larga distancia</div>
+        </div>
+      </div>
+      <div class="detail-card">
+        <h4>Baños Planta Alta — Sector C</h4>
+        <div class="detail-tags">
+          <span class="tag" style="background:#f3e8ff;color:#6b21a8">Familiar</span>
+          <span class="tag" style="background:#dcfce7;color:#166534">PMR </span>
+        </div>
+        <div class="detail-rows">
+          <div class="detail-row"><span class="dr-icon">🕐</span>Lun a Dom: 06:00 – 22:00</div>
+          <div class="detail-row"><span class="dr-icon">📍</span>Planta alta, junto a la sala de espera VIP</div>
+          <div class="detail-row"><span class="dr-icon">♿</span>Baño familiar con espacio para silla de ruedas</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sector-block">
+    <div class="sector-header">
+      <div class="sector-title">
+        <div class="sector-icon-wrap" style="background:#fce7f3">ℹ️</div>
+        <div><h2>Oficinas de Información</h2><p>Atención al pasajero y consultas de servicio</p></div>
+      </div>
+      <span class="open-badge">Abierto ahora</span>
+    </div>
+    <div class="sector-cards">
+      <div class="detail-card">
+        <h4>Mostrador Central</h4>
+        <div class="detail-tags">
+          <span class="tag" style="background:#dcfce7;color:#166534">Atención en persona</span>
+        </div>
+        <div class="detail-rows">
+          <div class="detail-row"><span class="dr-icon">🕐</span>Lun a Dom: 05:00 – 00:30 · Feriados: 06:00 – 22:00</div>
+          <div class="detail-row"><span class="dr-icon">📍</span>Hall central, frente a la entrada principal</div>
+          <div class="detail-row"><span class="dr-icon">🎫</span>Venta de pasajes · Cambios · Consultas de servicio</div>
+        </div>
+      </div>
+      <div class="detail-card">
+        <h4>Informes Turísticos</h4>
+        <div class="detail-tags">
+          <span class="tag" style="background:#fef3c7;color:#92400e">Destinos y alojamiento</span>
+        </div>
+        <div class="detail-rows">
+          <div class="detail-row"><span class="dr-icon">🕐</span>Lun a Vie: 08:00 – 18:00 · Sáb y Dom: 09:00 – 15:00</div>
+          <div class="detail-row"><span class="dr-icon">📍</span>Ala este del hall, sector módulos informativos</div>
+          <div class="detail-row"><span class="dr-icon">🗺️</span>Mapas · Folletos · Reservas de hotel · Excursiones locales</div>
+        </div>
+      </div>
+      <div class="detail-card">
+        <h4>Oficina de Objetos Perdidos</h4>
+        <div class="detail-tags">
+          <span class="tag" style="background:#fef3c7;color:#92400e">Según horario</span>
+        </div>
+        <div class="detail-rows">
+          <div class="detail-row"><span class="dr-icon">🕐</span>Lun a Vie: 08:00 – 20:00 · Sáb: 09:00 – 14:00 · Dom: cerrado</div>
+          <div class="detail-row"><span class="dr-icon">📍</span>Subsuelo, junto a la zona de encomiendas</div>
+          <div class="detail-row"><span class="dr-icon">📞</span>Tel: 0800-555-4505</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sector-block">
+    <div class="sector-header">
+      <div class="sector-title">
+        <div class="sector-icon-wrap" style="background:#fef3c7">🍽️</div>
+        <div><h2>Locales Gastronómicos</h2><p>Propuestas culinarias para todos los gustos</p></div>
+      </div>
+      <span class="open-badge">Abierto ahora</span>
+    </div>
+    <div class="sector-cards">
+      <div class="detail-card">
+        <h4>Cafetería Central</h4>
+        <div class="detail-tags">
+          <span class="tag" style="background:#fef3c7;color:#92400e">Desayuno · Almuerzo</span>
+        </div>
+        <div class="detail-rows">
+          <div class="detail-row"><span class="dr-icon">🕐</span>Todos los días: 05:00 – 23:00</div>
+          <div class="detail-row"><span class="dr-icon">📍</span>Planta baja, frente a boletería</div>
+          <div class="detail-row"><span class="dr-icon">☕</span>Café · Medialunas · Sándwiches · Menú ejecutivo</div>
+        </div>
+      </div>
+      <div class="detail-card">
+        <h4>Snack Bar Andenes</h4>
+        <div class="detail-tags">
+          <span class="tag" style="background:#fef3c7;color:#92400e">Para llevar</span>
+        </div>
+        <div class="detail-rows">
+          <div class="detail-row"><span class="dr-icon">🕐</span>Todos los días: 06:00 – 22:00</div>
+          <div class="detail-row"><span class="dr-icon">📍</span>Zona de andenes, entre plataformas 6 y 7</div>
+          <div class="detail-row"><span class="dr-icon">🥪</span>Empanadas · Bebidas · Golosinas · Snacks viajeros</div>
+        </div>
+      </div>
+      <div class="detail-card">
+        <h4>Restaurante El Litoral</h4>
+        <div class="detail-tags">
+          <span class="tag" style="background:#dcfce7;color:#166534">Comida regional</span>
+        </div>
+        <div class="detail-rows">
+          <div class="detail-row"><span class="dr-icon">🕐</span>Lun a Dom: 07:00 – 22:30</div>
+          <div class="detail-row"><span class="dr-icon">📍</span>Planta alta · Terraza con vista a los andenes</div>
+          <div class="detail-row"><span class="dr-icon">🌿</span>Especialidades misioneras · Chipá · Mbejú · Tereré</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sector-block">
+    <div class="sector-header">
+      <div class="sector-title">
+        <div class="sector-icon-wrap" style="background:#f3e8ff">🪑</div>
+        <div><h2>Áreas de Espera</h2><p>Espacios cómodos para aguardar tu servicio</p></div>
+      </div>
+      <span class="open-badge">Abierto ahora</span>
+    </div>
+    <div class="sector-cards">
+      <div class="detail-card">
+        <h4>Sala de Espera General</h4>
+        <div class="detail-tags">
+          <span class="tag" style="background:#f3e8ff;color:#6b21a8">Gratuita</span>
+        </div>
+        <div class="detail-rows">
+          <div class="detail-row"><span class="dr-icon">🕐</span>Abierto las 24 horas</div>
+          <div class="detail-row"><span class="dr-icon">📍</span>Planta baja, sector central</div>
+          <div class="detail-row"><span class="dr-icon">📶</span>Wi-Fi gratuito · Enchufes disponibles · TV</div>
+        </div>
+      </div>
+      <div class="detail-card">
+        <h4>Sala VIP Premium</h4>
+        <div class="detail-tags">
+          <span class="tag" style="background:#fef3c7;color:#92400e">Suite · Cama</span>
+        </div>
+        <div class="detail-rows">
+          <div class="detail-row"><span class="dr-icon">🕐</span>Todos los días: 06:00 – 00:00</div>
+          <div class="detail-row"><span class="dr-icon">📍</span>Planta alta · Acceso exclusivo con ticket</div>
+          <div class="detail-row"><span class="dr-icon">🍷</span>Snacks incluidos · Butacas reclinables · Duchas</div>
+        </div>
+      </div>
+      <div class="detail-card">
+        <h4>Zona Familiar</h4>
+        <div class="detail-tags">
+          <span class="tag" style="background:#dcfce7;color:#166534">Niños · Familias</span>
+        </div>
+        <div class="detail-rows">
+          <div class="detail-row"><span class="dr-icon">🕐</span>Todos los días: 07:00 – 23:00</div>
+          <div class="detail-row"><span class="dr-icon">📍</span>Sector B, planta baja</div>
+          <div class="detail-row"><span class="dr-icon">🧸</span>Área de juegos · Cambiador · Espacio lactancia</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sector-block">
+    <div class="sector-header">
+      <div class="sector-title">
+        <div class="sector-icon-wrap" style="background:#e0f2fe">🅿️</div>
+        <div><h2>Estacionamiento</h2><p>Playa de estacionamiento techada y vigilada</p></div>
+      </div>
+      <span class="open-badge">Abierto ahora</span>
+    </div>
+    <div class="sector-cards">
+      <div class="detail-card">
+        <h4>Estacionamiento Nivel 0</h4>
+        <div class="detail-tags">
+          <span class="tag" style="background:#e0f2fe;color:#075985">Corta estadía</span>
+        </div>
+        <div class="detail-rows">
+          <div class="detail-row"><span class="dr-icon">🕐</span>Abierto las 24 horas</div>
+          <div class="detail-row"><span class="dr-icon">📍</span>Acceso por calle lateral norte</div>
+          <div class="detail-row"><span class="dr-icon">🚗</span>Primeras 2hs: $800 · Por hora adicional: $400</div>
+        </div>
+      </div>
+      <div class="detail-card">
+        <h4>Estacionamiento Cubierto</h4>
+        <div class="detail-tags">
+          <span class="tag" style="background:#e0f2fe;color:#075985">Larga estadía</span>
+        </div>
+        <div class="detail-rows">
+          <div class="detail-row"><span class="dr-icon">🕐</span>Abierto las 24 horas</div>
+          <div class="detail-row"><span class="dr-icon">📍</span>Subsuelo · Acceso por rampa sur</div>
+          <div class="detail-row"><span class="dr-icon">💰</span>Abono diario: $3.500 · Semanal: $18.000</div>
+        </div>
+      </div>
+      <div class="detail-card">
+        <h4>Espacios Accesibles</h4>
+        <div class="detail-tags">
+          <span class="tag" style="background:#dcfce7;color:#166534"> Gratuito</span>
+        </div>
+        <div class="detail-rows">
+          <div class="detail-row"><span class="dr-icon">🕐</span>Disponibles las 24 horas</div>
+          <div class="detail-row"><span class="dr-icon">📍</span>Nivel 0 · Próximos al acceso principal</div>
+          <div class="detail-row"><span class="dr-icon">📋</span>Requiere credencial de discapacidad · Gratuito</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<button class="chat-btn" onclick="toggleChat()">🤖 ¿Necesitas ayuda?</button>
+<div class="chat-window" id="chatWindow">
+  <div class="chat-header">
+    <div><h4>Asistente Virtual</h4><span>Misiones Transports · En línea</span></div>
+    <button class="chat-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="msg bot">¡Hola! Soy el asistente de Misiones Transports. ¿En qué puedo ayudarte?</div>
+  </div>
+  <div class="chat-suggestions">
+    <span class="suggestion" onclick="askBot('¿Cuáles son los horarios?')">Horarios</span>
+    <span class="suggestion" onclick="askBot('¿Cuánto cuesta ir a Iguazú?')">Precios</span>
+    <span class="suggestion" onclick="askBot('¿Dónde está la plataforma?')">Plataformas</span>
+    <span class="suggestion" onclick="askBot('¿Hay wifi?')">Wi-Fi</span>
+  </div>
+  <div class="chat-input-row">
+    <input class="chat-input" id="chatInput" type="text" placeholder="Escribí tu pregunta..." onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="chat-send" onclick="sendChat()">➤</button>
+  </div>
+</div>
+
+<footer>
+  <div>
+    <div class="footer-brand">Misiones Transports</div>
+    <div class="footer-copy">© 2024 Misiones Transports · Reliable. Rhythmic. Navigational.</div>
+  </div>
+  <div class="footer-links">
+    <a href="#">Contact Us</a>
+    <a href="accesibilidad.html">Accessibility Statement</a>
+    <a href="#">Terms of Service</a>
+    <a href="#">Privacy Policy</a>
+  </div>
+</footer>
+
+<script>
+function toggleChat() { document.getElementById('chatWindow').classList.toggle('open'); }
+const respuestas = [
+  { keys:['horario','salida','cuando','sale'], res:'Los servicios salen desde Retiro a las 19:30, 21:00 y 22:15 hs. Podés ver todos en la sección Horarios.' },
+  { keys:['precio','costo','cuanto','vale','cuesta'], res:'Los precios van desde $38.500 (Oberá) hasta $70.000 (Puerto Iguazú Suite Premium).' },
+  { keys:['plataforma','anden','sector'], res:'Las plataformas están numeradas del 01 al 15. Podés verlas en el mapa de la terminal.' },
+  { keys:['wifi','internet','conectividad'], res:'El Wi-Fi es gratuito en todos los colectivos.' },
+  { keys:['equipaje','valija','bolso'], res:'Podés llevar 1 valija de hasta 20kg en bodega y 1 bolso de mano sin cargo.' },
+  { keys:['baño','bano','sanitario'], res:'Los baños están en Planta Baja Sector A, abiertos las 24 horas.' },
+  { keys:['accesibilidad','silla','discapacidad','rampa'], res:'Contamos con rampas, asientos prioritarios y personal capacitado. Visitá la sección Accesibilidad.' },
+  { keys:['comida','cena','snack','catering','gastronomia'], res:'Todos los servicios incluyen snack. Los Suite Premium incluyen cena caliente a bordo.' },
+  { keys:['estacionamiento','auto','parking'], res:'El estacionamiento está disponible las 24hs. Nivel 0: $800 las primeras 2hs. Abono diario: $3.500.' },
+];
+function askBot(text) {
+  addMsg(text, 'user');
+  setTimeout(() => {
+    const lower = text.toLowerCase();
+    const match = respuestas.find(r => r.keys.some(k => lower.includes(k)));
+    addMsg(match ? match.res : 'No entendí tu consulta. Podés llamarnos al 0800-333-MISION o acercarte a la boletería.', 'bot');
+  }, 500);
+}
+function sendChat() {
+  const input = document.getElementById('chatInput');
+  if (!input.value.trim()) return;
+  askBot(input.value.trim());
+  input.value = '';
+}
+function addMsg(text, type) {
+  const c = document.getElementById('chatMessages');
+  c.innerHTML += `<div class="msg ${type}">${text}</div>`;
+  c.scrollTop = c.scrollHeight;
+}
+</script>
+</body>
+</html>

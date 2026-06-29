@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selección de Asientos - Misiones Transports</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --navy: #1a2744; --orange: #c0511a; --white: #ffffff; --text: #111827; --muted: #6b7280; --light: #f3f4f6; }
+  body { font-family: 'Inter', sans-serif; color: var(--text); background: #f8f9fa; }
+
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 56px; background: var(--white); border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 100; }
+  .nav-brand { display: flex; align-items: center; gap: .5rem; font-weight: 700; font-size: 1rem; color: var(--text); text-decoration: none; }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a { text-decoration: none; color: var(--muted); font-size: .9rem; font-weight: 500; }
+  .nav-links a:hover { color: var(--text); }
+  .btn-access { background: var(--navy); color: var(--white); border: none; border-radius: 6px; padding: .45rem 1rem; font-size: .82rem; font-weight: 600; cursor: pointer; }
+
+  .steps-bar { background: var(--white); border-bottom: 1px solid #e5e7eb; padding: 1rem 2rem; }
+  .steps-inner { max-width: 900px; margin: 0 auto; display: flex; align-items: center; }
+  .step-item { display: flex; align-items: center; gap: .5rem; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: .8rem; font-weight: 700; }
+  .step-num.done { background: var(--navy); color: var(--white); }
+  .step-num.active { background: var(--orange); color: var(--white); }
+  .step-num.pending { background: var(--light); color: var(--muted); }
+  .step-label { font-size: .82rem; font-weight: 600; }
+  .step-label.active { color: var(--orange); }
+  .step-label.done { color: var(--navy); }
+  .step-label.pending { color: var(--muted); }
+  .step-line { flex: 1; height: 1px; background: #e5e7eb; margin: 0 1rem; }
+  .step-line.done { background: var(--navy); }
+
+  .main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem; display: grid; grid-template-columns: 1fr 300px; gap: 1.5rem; }
+  @media(max-width:700px){ .main { grid-template-columns: 1fr; } }
+
+  .seat-card { background: var(--white); border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+  .seat-card h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; }
+
+  .legend { display: flex; gap: 1.25rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: .4rem; font-size: .78rem; color: var(--muted); }
+  .legend-box { width: 18px; height: 18px; border-radius: 4px; }
+  .leg-available { background: var(--white); border: 1.5px solid #d1d5db; }
+  .leg-selected { background: var(--orange); border: 1.5px solid var(--orange); }
+  .leg-occupied { background: #d1d5db; border: 1.5px solid #d1d5db; }
+
+  .bus-wrap { background: #f8f9fa; border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; align-items: center; }
+  .bus-front { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 260px; margin-bottom: 1rem; padding-bottom: .75rem; border-bottom: 2px dashed #d1d5db; }
+  .bus-front span { font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  .accesible-tag { font-size: .7rem; font-weight: 700; color: #166534; background: #dcfce7; padding: .2rem .6rem; border-radius: 20px; display: flex; align-items: center; gap: .3rem; }
+
+  .seat-grid { display: grid; grid-template-columns: repeat(4, 52px); gap: 8px; justify-content: center; }
+  .seat-gap { grid-column: 3; }
+
+  .seat {
+    width: 52px; height: 52px; border-radius: 8px;
+    border: 1.5px solid #d1d5db; background: var(--white);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: .72rem; font-weight: 700; cursor: pointer;
+    transition: all .15s; color: var(--text);
+  }
+  .seat:hover:not(.occupied) { border-color: var(--orange); background: #fff5f0; }
+  .seat.selected { background: var(--orange); border-color: var(--orange); color: var(--white); }
+  .seat.occupied { background: #e5e7eb; border-color: #e5e7eb; color: #9ca3af; cursor: not-allowed; }
+  .seat.accesible { border-color: #22c55e; }
+  .seat .seat-icon { font-size: .9rem; margin-bottom: .1rem; }
+
+  .summary-card { background: var(--white); border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.06); position: sticky; top: 76px; }
+  .summary-title { font-size: 1rem; font-weight: 700; color: var(--orange); margin-bottom: .75rem; }
+  .summary-route { font-size: .88rem; font-weight: 700; margin-bottom: .3rem; }
+  .summary-date { font-size: .78rem; color: var(--muted); display: flex; align-items: center; gap: .3rem; margin-bottom: 1rem; }
+  .summary-divider { height: 1px; background: #e5e7eb; margin: .85rem 0; }
+  .summary-label { font-size: .68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .summary-seats { font-size: .82rem; color: var(--muted); margin-bottom: .5rem; }
+  .summary-seat-tag { display: inline-block; background: var(--orange); color: var(--white); font-size: .72rem; font-weight: 700; padding: .15rem .5rem; border-radius: 4px; margin: .15rem; }
+  .summary-row { display: flex; justify-content: space-between; font-size: .82rem; padding: .3rem 0; }
+  .summary-row.total { font-weight: 800; font-size: 1rem; }
+  .summary-row.total span:last-child { color: var(--orange); }
+
+  .btn-continuar { width: 100%; background: var(--orange); color: var(--white); border: none; border-radius: 10px; padding: .85rem; font-size: .95rem; font-weight: 700; cursor: pointer; margin-top: 1rem; transition: background .2s; }
+  .btn-continuar:hover { background: #a8461a; }
+  .btn-continuar:disabled { background: #d1d5db; cursor: not-allowed; }
+
+  .note-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: .85rem; margin-top: 1rem; font-size: .75rem; color: #1e40af; line-height: 1.5; }
+  .note-box strong { display: block; margin-bottom: .2rem; }
+
+  footer { background: var(--navy); color: rgba(255,255,255,.6); padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-top: 3rem; }
+  .footer-brand { color: var(--white); font-weight: 700; font-size: .9rem; }
+  .footer-copy { font-size: .72rem; margin-top: .2rem; }
+  .footer-links { display: flex; gap: 1.5rem; }
+  .footer-links a { color: rgba(255,255,255,.6); text-decoration: none; font-size: .75rem; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html">🚌 Misiones Transports</a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="rutas.html">Rutas</a>
+    <a href="horarios.html">Horarios</a>
+    <a href="terminal.html">Terminal</a>
+    <a href="accesibilidad.html">Accesibilidad</a>
+  </div>
+  <button class="btn-access"> Accesibilidad</button>
+</nav>
+
+<div class="steps-bar">
+  <div class="steps-inner">
+    <div class="step-item">
+      <div class="step-num done">✓</div>
+      <span class="step-label done">Detalles del viaje</span>
+    </div>
+    <div class="step-line done"></div>
+    <div class="step-item">
+      <div class="step-num active">2</div>
+      <span class="step-label active">Selección de asiento</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-num pending">3</div>
+      <span class="step-label pending">Datos del pasajero</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-num pending">4</div>
+      <span class="step-label pending">Confirmación</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="seat-card">
+    <h2>Seleccioná tus asientos</h2>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-box leg-available"></div> Disponible</div>
+      <div class="legend-item"><div class="legend-box leg-selected"></div> Seleccionado</div>
+      <div class="legend-item"><div class="legend-box leg-occupied"></div> Ocupado</div>
+    </div>
+    <div class="bus-wrap">
+      <div class="bus-front">
+        <span>🚌 FRENTE</span>
+        <span class="accesible-tag">♿ Espacio accesible</span>
+      </div>
+      <div class="seat-grid" id="seat-grid"></div>
+    </div>
+  </div>
+
+  <div class="summary-card">
+    <div class="summary-title">Resumen del viaje</div>
+    <div class="summary-route">Buenos Aires → Posadas</div>
+    <div class="summary-date">📅 <span id="fecha-display"></span> · 19:30 hs</div>
+    <div class="summary-divider"></div>
+    <div class="summary-label">Asientos seleccionados</div>
+    <div class="summary-seats" id="seats-display">Ningún asiento seleccionado</div>
+    <div class="summary-divider"></div>
+    <div class="summary-row"><span>Tarifa base (<span id="cant-seats">0</span>x)</span><span>$<span id="subtotal">0</span></span></div>
+    <div class="summary-row"><span>Cargo de plataforma</span><span>$<span id="cargo">0</span></span></div>
+    <div class="summary-divider"></div>
+    <div class="summary-row total"><span>Total</span><span>$<span id="total">0</span></span></div>
+    <button class="btn-continuar" id="btn-continuar" disabled onclick="window.location='pasajero.html'">Continuar</button>
+    <div class="note-box">
+      <strong>ℹ️ Nota sobre asientos delanteros</strong>
+      Los asientos 1A y 1B están reservados para personas mayores y pasajeros con discapacidad.
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div>
+    <div class="footer-brand">Misiones Transports</div>
+    <div class="footer-copy">© 2024 Misiones Transports · Reliable. Rhythmic. Navigational.</div>
+  </div>
+  <div class="footer-links">
+    <a href="#">Contact Us</a>
+    <a href="accesibilidad.html">Accessibility Statement</a>
+    <a href="#">Terms of Service</a>
+    <a href="#">Privacy Policy</a>
+  </div>
+</footer>
+
+<script>
+const viaje = JSON.parse(localStorage.getItem('viaje')) || { dest:'posadas', salida:'19:30', clase:'Semi-Cama', precio:42500 };
+const PRICE = viaje.precio;
+const CARGO = 1500;
+const destinos = { posadas:'Posadas', iguazu:'Puerto Iguazú', obera:'Oberá', eldorado:'Eldorado' };
+document.querySelector('.summary-route').textContent = 'Buenos Aires → ' + (destinos[viaje.dest] || viaje.dest);
+document.querySelector('.summary-date').innerHTML = '📅 ' + new Date().toLocaleDateString('es-AR', { weekday:'short', day:'numeric', month:'short', year:'numeric' }) + ' · ' + viaje.salida + ' hs';
+const rows = ['A','B','C','D'];
+const totalRows = 10;
+const occupied = ['2A','2B','5C','5D','7A','8B','9C','3D'];
+let selected = [];
+
+const grid = document.getElementById('seat-grid');
+for (let r = 1; r <= totalRows; r++) {
+  rows.forEach((col, i) => {
+    const id = r + col;
+    const div = document.createElement('div');
+    div.className = 'seat' + (occupied.includes(id) ? ' occupied' : '') + (id === '1A' || id === '1B' ? ' accesible' : '');
+    div.id = 'seat-' + id;
+    div.innerHTML = `<span class="seat-icon">${occupied.includes(id) ? '✕' : '🪑'}</span>${id}`;
+    if (!occupied.includes(id)) div.onclick = () => toggleSeat(id);
+    if (i === 1) {
+      const gap = document.createElement('div');
+      gap.style.width = '20px';
+      grid.appendChild(gap);
+    }
+    grid.appendChild(div);
+  });
+}
+
+function toggleSeat(id) {
+  const idx = selected.indexOf(id);
+  if (idx > -1) {
+    selected.splice(idx, 1);
+    document.getElementById('seat-' + id).classList.remove('selected');
+    document.getElementById('seat-' + id).innerHTML = `<span class="seat-icon">🪑</span>${id}`;
+  } else {
+    if (selected.length >= 4) { alert('Máximo 4 asientos por compra.'); return; }
+    selected.push(id);
+    document.getElementById('seat-' + id).classList.add('selected');
+    document.getElementById('seat-' + id).innerHTML = `<span class="seat-icon">✓</span>${id}`;
+  }
+  updateSummary();
+}
+
+function updateSummary() {
+  const cant = selected.length;
+  const subtotal = cant * PRICE;
+  const cargo = cant > 0 ? CARGO : 0;
+  const total = subtotal + cargo;
+
+  document.getElementById('cant-seats').textContent = cant;
+  document.getElementById('subtotal').textContent = subtotal.toLocaleString('es-AR');
+  document.getElementById('cargo').textContent = cargo.toLocaleString('es-AR');
+  document.getElementById('total').textContent = total.toLocaleString('es-AR');
+  document.getElementById('btn-continuar').disabled = cant === 0;
+
+  const seatsDisplay = document.getElementById('seats-display');
+  if (cant === 0) {
+    seatsDisplay.innerHTML = '<span style="color:var(--muted)">Ningún asiento seleccionado</span>';
+  } else {
+    seatsDisplay.innerHTML = selected.map(s => `<span class="summary-seat-tag">${s}</span>`).join('');
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horarios - Misiones Transports</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --navy: #1a2744; --orange: #c0511a; --white: #ffffff; --text: #111827; --muted: #6b7280; --light: #f3f4f6; }
+  body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--white); }
+
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 56px; background: var(--white); border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 100; }
+  .nav-brand { display: flex; align-items: center; gap: .5rem; font-weight: 700; font-size: 1rem; color: var(--text); text-decoration: none; }
+  .nav-links { display: flex; gap: 2rem; align-items: center; }
+  .nav-links a { text-decoration: none; color: var(--muted); font-size: .9rem; font-weight: 500; }
+  .nav-links a.active { color: var(--orange); border-bottom: 2px solid var(--orange); padding-bottom: 2px; }
+  .nav-links a:hover { color: var(--text); }
+  .btn-access { background: var(--navy); color: var(--white); border: none; border-radius: 6px; padding: .45rem 1rem; font-size: .82rem; font-weight: 600; cursor: pointer; }
+
+  .page-header { padding: 2.5rem 2rem 1.5rem; max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start; }
+  .page-header h1 { font-size: 2rem; font-weight: 700; margin-bottom: .3rem; }
+  .page-header p { color: var(--muted); font-size: .9rem; }
+  .retiro-badge { background: #fef3e2; color: var(--orange); border: 1px solid #fcd9a0; border-radius: 20px; padding: .35rem 1rem; font-size: .78rem; font-weight: 600; display: flex; align-items: center; gap: .4rem; }
+
+  .filters-bar { background: var(--white); border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.25rem 1.5rem; max-width: 1100px; margin: 0 auto 2rem; display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 1rem; align-items: end; }
+  @media(max-width:700px){ .filters-bar { grid-template-columns: 1fr 1fr; } }
+  .form-group { display: flex; flex-direction: column; gap: .3rem; }
+  .form-group label { font-size: .68rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+  .form-group select, .form-group input { border: 1.5px solid #e5e7eb; border-radius: 8px; padding: .55rem .85rem; font-size: .85rem; font-family: 'Inter', sans-serif; color: var(--text); background: var(--white); outline: none; appearance: none; }
+  .form-group select:focus, .form-group input:focus { border-color: var(--navy); }
+  .btn-update { background: var(--orange); color: var(--white); border: none; border-radius: 8px; padding: .6rem 1.25rem; font-size: .85rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: .4rem; white-space: nowrap; }
+  .btn-update:hover { background: #a8461a; }
+
+  .main { max-width: 1100px; margin: 0 auto; padding: 0 2rem 3rem; }
+
+  .table-header { display: grid; grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr; padding: .5rem 1.25rem; font-size: .68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .5rem; }
+  @media(max-width:700px){ .table-header { display: none; } }
+
+  .trip-card { border: 1.5px solid #e5e7eb; border-radius: 12px; padding: 1.25rem; margin-bottom: .85rem; display: grid; grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr; align-items: center; gap: 1rem; transition: border-color .2s, box-shadow .2s; }
+  .trip-card:hover { border-color: var(--navy); box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+  .trip-card.best { border-color: var(--orange); background: #fff8f5; }
+  @media(max-width:700px){ .trip-card { grid-template-columns: 1fr 1fr; } }
+
+  .trip-route { display: flex; flex-direction: column; gap: .4rem; }
+  .trip-time { font-size: 1.2rem; font-weight: 800; color: var(--navy); }
+  .trip-origin { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+  .trip-dest { font-size: .88rem; font-weight: 600; }
+  .trip-dot { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+  .dot-line { display: flex; align-items: center; gap: .4rem; font-size: .75rem; color: var(--muted); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--orange); flex-shrink: 0; }
+  .dot.empty { background: transparent; border: 2px solid var(--muted); }
+  .vline { width: 1px; height: 16px; background: #e5e7eb; margin-left: 3px; }
+
+  .arrival-time { font-size: 1rem; font-weight: 700; }
+  .arrival-day { font-size: .72rem; color: var(--orange); font-weight: 600; }
+  .arrival-dur { font-size: .75rem; color: var(--muted); background: var(--light); padding: .2rem .5rem; border-radius: 4px; width: fit-content; margin-top: .2rem; }
+
+  .clase-name { font-weight: 600; font-size: .88rem; }
+  .clase-sub { font-size: .72rem; color: var(--muted); }
+  .best-label { font-size: .65rem; font-weight: 700; color: var(--orange); text-transform: uppercase; letter-spacing: .05em; }
+
+  .price-from { font-size: .65rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+  .price-amount { font-size: 1.1rem; font-weight: 800; color: var(--navy); }
+
+  .btn-buy { background: var(--navy); color: var(--white); border: none; border-radius: 8px; padding: .5rem 1rem; font-size: .8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: .3rem; transition: background .2s; white-space: nowrap; }
+  .btn-buy:hover { background: var(--orange); }
+  .btn-buy.featured { background: var(--orange); }
+  .btn-buy.featured:hover { background: #a8461a; }
+
+  .features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-top: 2.5rem; }
+  @media(max-width:640px){ .features-grid { grid-template-columns: 1fr; } }
+  .feature-card { border-radius: 12px; padding: 1.5rem; }
+  .feature-card.dark { background: var(--navy); color: var(--white); }
+  .feature-card.light { background: var(--light); }
+  .feature-icon { font-size: 1.5rem; margin-bottom: .75rem; }
+  .feature-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: .4rem; }
+  .feature-card p { font-size: .78rem; line-height: 1.5; }
+  .feature-card.dark p { color: rgba(255,255,255,.65); }
+  .feature-card.light p { color: var(--muted); }
+
+  .faq-section { margin-top: 3rem; }
+  .faq-section h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 1.25rem; }
+  .faq-item { border: 1.5px solid #e5e7eb; border-radius: 10px; margin-bottom: .75rem; overflow: hidden; }
+  .faq-q { padding: 1rem 1.25rem; font-size: .9rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+  .faq-q:hover { background: var(--light); }
+  .faq-a { padding: 0 1.25rem; max-height: 0; overflow: hidden; transition: max-height .3s, padding .3s; font-size: .85rem; color: var(--muted); line-height: 1.6; }
+  .faq-a.open { max-height: 200px; padding: .75rem 1.25rem 1rem; }
+  .faq-arrow { transition: transform .3s; font-size: .8rem; }
+  .faq-arrow.open { transform: rotate(180deg); }
+
+  .btn-help { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--orange); color: var(--white); border: none; border-radius: 50px; padding: .75rem 1.25rem; font-size: .85rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(192,81,26,.4); display: flex; align-items: center; gap: .4rem; z-index: 99; }
+  .chat-btn { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--orange); color: var(--white); border: none; border-radius: 50px; padding: .75rem 1.25rem; font-size: .85rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(192,81,26,.4); z-index: 99; display: flex; align-items: center; gap: .4rem; }
+.chat-window { position: fixed; bottom: 5rem; right: 1.5rem; width: 320px; background: var(--white); border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,.15); z-index: 98; display: none; flex-direction: column; overflow: hidden; border: 1px solid #e5e7eb; }
+.chat-window.open { display: flex; }
+.chat-header { background: var(--navy); color: var(--white); padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; }
+.chat-header h4 { font-size: .9rem; font-weight: 700; }
+.chat-header span { font-size: .72rem; color: rgba(255,255,255,.65); }
+.chat-close { background: none; border: none; color: var(--white); cursor: pointer; font-size: 1.1rem; }
+.chat-messages { padding: 1rem; height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: .6rem; }
+.msg { padding: .6rem .85rem; border-radius: 10px; font-size: .82rem; max-width: 85%; line-height: 1.4; }
+.msg.bot { background: var(--light); color: var(--text); align-self: flex-start; }
+.msg.user { background: var(--navy); color: var(--white); align-self: flex-end; }
+.chat-suggestions { display: flex; flex-wrap: wrap; gap: .4rem; padding: 0 1rem .75rem; }
+.suggestion { background: var(--light); border: 1px solid #e5e7eb; border-radius: 20px; padding: .3rem .75rem; font-size: .75rem; cursor: pointer; }
+.chat-input-row { display: flex; gap: .5rem; padding: .75rem 1rem; border-top: 1px solid #e5e7eb; }
+.chat-input { flex: 1; border: 1.5px solid #e5e7eb; border-radius: 8px; padding: .5rem .75rem; font-size: .82rem; font-family: 'Inter', sans-serif; outline: none; }
+.chat-send { background: var(--orange); color: var(--white); border: none; border-radius: 8px; padding: .5rem .85rem; cursor: pointer; font-size: .85rem; }
+
+  footer { background: var(--navy); color: rgba(255,255,255,.6); padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-top: 3rem; }
+  .footer-brand { color: var(--white); font-weight: 700; font-size: .9rem; }
+  .footer-copy { font-size: .72rem; margin-top: .2rem; }
+  .footer-links { display: flex; gap: 1.5rem; }
+  .footer-links a { color: rgba(255,255,255,.6); text-decoration: none; font-size: .75rem; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html"> Misiones Transports</a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="rutas.html">Rutas</a>
+    <a href="horarios.html" class="active">Horarios</a>
+    <a href="terminal.html">Terminal</a>
+    <a href="accesibilidad.html">Accesibilidad</a>
+  </div>
+  <button class="btn-access"> Accesibilidad</button>
+</nav>
+
+<div class="page-header">
+  <div>
+    <h1>Servicios de Larga Distancia</h1>
+    <p>Conectando Buenos Aires Retiro con el corazón de Misiones.</p>
+  </div>
+  <span class="retiro-badge">ℹ️ Estacion de Retiro</span>
+</div>
+
+<div class="filters-bar" style="margin:0 auto 2rem;padding:1.25rem 1.5rem;max-width:1100px;margin-left:auto;margin-right:auto;">
+  <div class="form-group">
+    <label>Destino</label>
+    <select id="fil-dest" onchange="filtrar()">
+      <option value="todos">Todos los destinos</option>
+      <option value="posadas">Posadas</option>
+      <option value="iguazu">Puerto Iguazú</option>
+      <option value="eldorado">Eldorado</option>
+      <option value="obera">Oberá</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>Clase</label>
+    <select id="fil-clase" onchange="filtrar()">
+      <option value="todos">Todas las clases</option>
+      <option value="semi">Semi-Cama</option>
+      <option value="cama">Cama</option>
+      <option value="suite">Suite Premium</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>Fecha</label>
+    <input type="date" id="fil-fecha">
+  </div>
+  <button class="btn-update" onclick="filtrar()">🔍 Buscar</button>
+</div>
+
+<div class="main">
+  <div class="table-header">
+    <span>SALIDA Y RUTA</span>
+    <span>LLEGADA EST.</span>
+    <span>CLASE</span>
+    <span>PRECIO</span>
+    <span></span>
+  </div>
+  <div id="trips-container"></div>
+
+  <div class="features-grid">
+    <div class="feature-card dark">
+      <div class="feature-icon">🛡️</div>
+      <h4>Viaje Seguro</h4>
+      <p>Todas nuestras unidades son monitoreadas por GPS 24/7 con turnos rotativos de choferes profesionales.</p>
+    </div>
+    <div class="feature-card light">
+      <div class="feature-icon">📶</div>
+      <h4>Connectividad</h4>
+      <p>Incluye Wi-Fi gratuito.</p>
+    </div>
+    <div class="feature-card light">
+      <div class="feature-icon">🍽️</div>
+      <h4>Servicio a bordo</h4>
+      <p>Servicio de snack incluido.</p>
+    </div>
+  </div>
+
+  <div class="faq-section">
+    <h2>Preguntas Frecuentes</h2>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">¿Cómo cambio mi pasaje? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">Podés cambiar tu pasaje hasta 2 horas antes de la salida sin cargo adicional. Contactá a nuestro equipo de atención al cliente o acercate a la boletería de Retiro.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">¿Cuánto equipaje puedo llevar? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">Cada pasajero tiene permitido 1 valija de hasta 20kg en bodega y 1 bolso de mano de hasta 5kg. Equipaje adicional tiene un costo extra.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">¿Hay Wi-Fi en todos los colectivos? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">El Wi-Fi es gratuito en todos los colectivos.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">¿Cómo solicito asistencia de accesibilidad? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">Podés solicitar asistencia especial al momento de la compra o llamando a nuestro centro de atención 48hs antes del viaje. Contamos con rampas, asientos prioritarios y personal capacitado.</div>
+    </div>
+  </div>
+</div>
+
+<button class="chat-btn" onclick="toggleChat()">🤖 ¿Necesitas ayuda?</button>
+<div class="chat-window" id="chatWindow">
+  <div class="chat-header">
+    <div><h4>Asistente Virtual</h4><span>Misiones Transports · En línea</span></div>
+    <button class="chat-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="msg bot">¡Hola! Soy el asistente de Misiones Transports. ¿En qué puedo ayudarte?</div>
+  </div>
+  <div class="chat-suggestions">
+    <span class="suggestion" onclick="askBot('¿Cuáles son los horarios?')">Horarios</span>
+    <span class="suggestion" onclick="askBot('¿Cuánto cuesta ir a Iguazú?')">Precios</span>
+    <span class="suggestion" onclick="askBot('¿Dónde está la plataforma?')">Plataformas</span>
+    <span class="suggestion" onclick="askBot('¿Hay wifi?')">Wi-Fi</span>
+  </div>
+  <div class="chat-input-row">
+    <input class="chat-input" id="chatInput" type="text" placeholder="Escribí tu pregunta..." onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="chat-send" onclick="sendChat()">➤</button>
+  </div>
+</div>
+
+<footer>
+  <div>
+    <div class="footer-brand">Misiones Transports</div>
+    <div class="footer-copy">© 2024 Misiones Transports · Reliable. Rhythmic. Navigational.</div>
+  </div>
+  <div class="footer-links">
+    <a href="#">Contact Us</a>
+    <a href="accesibilidad.html">Accessibility Statement</a>
+    <a href="#">Terms of Service</a>
+    <a href="#">Privacy Policy</a>
+  </div>
+</footer>
+
+<script>
+const trips = [
+  { dest:'posadas', salida:'19:30', llegada:'07:45', dia:'+1 Día', duracion:'~12h 15m', clase:'semi', claseLabel:'Semi-Cama', claseSub:'Normal', precio:32500, best:false },
+  { dest:'posadas', salida:'20:00', llegada:'08:30', dia:'+1 Día', duracion:'~12h 30m', clase:'cama', claseLabel:'Cama 160°', claseSub:'Reclinable', precio:48000, best:false },
+  { dest:'posadas', salida:'21:00', llegada:'09:30', dia:'+1 Día', duracion:'~12h 30m', clase:'suite', claseLabel:'Suite Premium', claseSub:'MEJOR PRECIO', precio:72000, best:true },
+  { dest:'iguazu', salida:'19:00', llegada:'13:00', dia:'+1 Día', duracion:'~18h 00m', clase:'semi', claseLabel:'Semi-Cama', claseSub:'Normal', precio:38500, best:false },
+  { dest:'iguazu', salida:'20:00', llegada:'14:00', dia:'+1 Día', duracion:'~18h 00m', clase:'cama', claseLabel:'Cama 160°', claseSub:'Reclinable', precio:58000, best:false },
+  { dest:'iguazu', salida:'21:00', llegada:'15:00', dia:'+1 Día', duracion:'~18h 00m', clase:'suite', claseLabel:'Suite Premium', claseSub:'MEJOR PRECIO', precio:89000, best:true },
+  { dest:'eldorado', salida:'20:00', llegada:'12:15', dia:'+1 Día', duracion:'~16h 15m', clase:'semi', claseLabel:'Semi-Cama', claseSub:'Normal', precio:33000, best:false },
+  { dest:'eldorado', salida:'21:00', llegada:'13:15', dia:'+1 Día', duracion:'~16h 15m', clase:'cama', claseLabel:'Cama 160°', claseSub:'Reclinable', precio:50000, best:false },
+  { dest:'eldorado', salida:'22:00', llegada:'14:15', dia:'+1 Día', duracion:'~16h 15m', clase:'suite', claseLabel:'Suite Premium', claseSub:'MEJOR PRECIO', precio:75000, best:true },
+  { dest:'obera', salida:'20:30', llegada:'11:00', dia:'+1 Día', duracion:'~14h 30m', clase:'semi', claseLabel:'Semi-Cama', claseSub:'Normal', precio:30000, best:false },
+  { dest:'obera', salida:'21:30', llegada:'12:00', dia:'+1 Día', duracion:'~14h 30m', clase:'cama', claseLabel:'Cama 160°', claseSub:'Reclinable', precio:45000, best:false },
+  { dest:'obera', salida:'22:30', llegada:'13:00', dia:'+1 Día', duracion:'~14h 30m', clase:'suite', claseLabel:'Suite Premium', claseSub:'MEJOR PRECIO', precio:68000, best:true },
+];
+
+document.getElementById('fil-fecha').valueAsDate = new Date();
+
+function filtrar() {
+  const dest = document.getElementById('fil-dest').value;
+  const clase = document.getElementById('fil-clase').value;
+  let data = trips;
+  if (dest !== 'todos') data = data.filter(t => t.dest === dest);
+  if (clase !== 'todos') data = data.filter(t => t.clase === clase);
+  render(data);
+}
+
+function render(data) {
+  const c = document.getElementById('trips-container');
+  if (!data.length) { c.innerHTML = '<p style="color:#6b7280;padding:1rem 0">Sin resultados.</p>'; return; }
+  c.innerHTML = data.map(t => `
+    <div class="trip-card${t.best ? ' best' : ''}">
+      <div class="trip-route">
+        <div class="trip-time">${t.salida}</div>
+        <div class="trip-origin">RETIRO (BA)</div>
+        <div class="vline"></div>
+        <div class="trip-dest">${t.dest.charAt(0).toUpperCase()+t.dest.slice(1) === 'Iguazu' ? 'Puerto Iguazú' : t.dest.charAt(0).toUpperCase()+t.dest.slice(1)}</div>
+      </div>
+      <div>
+        <div class="arrival-time">${t.llegada} <span class="arrival-day"></span></div>
+        <div class="arrival-dur">${t.duracion} duracion</div>
+      </div>
+      <div>
+        <div class="clase-name">${t.claseLabel}</div>
+        ${t.best ? '<div class="best-label">★ Recomendado</div>' : `<div class="clase-sub">${t.claseSub}</div>`}
+      </div>
+      <div>
+        <div class="price-from"></div>
+        <div class="price-amount">$${t.precio.toLocaleString('es-AR')}</div>
+      </div>
+      <button class="btn-buy${t.best ? ' featured' : ''}" onclick="comprar('${t.dest}','${t.salida}','${t.claseLabel}','${t.precio}')">Comprar Pasaje</button>
+    </div>
+  `).join('');
+}
+
+function toggleFaq(el) {
+  const a = el.nextElementSibling;
+  const arrow = el.querySelector('.faq-arrow');
+  a.classList.toggle('open');
+  arrow.classList.toggle('open');
+}
+
+render(trips);
+function toggleChat() { document.getElementById('chatWindow').classList.toggle('open'); }
+const respuestas = [
+  { keys:['horario','salida','cuando','sale'], res:'Los servicios salen desde Retiro a las 19:30, 21:00 y 22:15 hs.' },
+  { keys:['precio','costo','cuanto','vale','cuesta'], res:'Los precios van desde $38.500 (Oberá) hasta $70.000 (Puerto Iguazú Suite Premium).' },
+  { keys:['plataforma','anden','sector'], res:'Las plataformas están numeradas del 01 al 15. Podés verlas en el mapa de la terminal.' },
+  { keys:['wifi','internet','conectividad'], res:'El Wi-Fi es gratuito en todos los colectivos.' },
+  { keys:['equipaje','valija','bolso'], res:'Podés llevar 1 valija de hasta 20kg en bodega y 1 bolso de mano.' },
+  { keys:['baño','sanitario'], res:'Los baños están en Planta Baja Sector A, abiertos las 24 horas.' },
+];
+function askBot(text) {
+  addMsg(text, 'user');
+  setTimeout(() => {
+    const lower = text.toLowerCase();
+    const match = respuestas.find(r => r.keys.some(k => lower.includes(k)));
+    addMsg(match ? match.res : 'No entendí tu consulta. Podés llamarnos al 0800-333-MISION.', 'bot');
+  }, 500);
+}
+function sendChat() {
+  const input = document.getElementById('chatInput');
+  if (!input.value.trim()) return;
+  askBot(input.value.trim());
+  input.value = '';
+}
+function addMsg(text, type) {
+  const c = document.getElementById('chatMessages');
+  c.innerHTML += `<div class="msg ${type}">${text}</div>`;
+  c.scrollTop = c.scrollHeight;
+}
+function comprar(dest, salida, clase, precio) {
+  localStorage.setItem('viaje', JSON.stringify({ dest, salida, clase, precio }));
+  window.location = 'asientos.html';
+}
+</script>
+</body>
+</html>

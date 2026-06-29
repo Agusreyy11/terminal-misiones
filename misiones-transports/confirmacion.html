@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Confirmación - Misiones Transports</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --navy: #1a2744; --orange: #c0511a; --white: #ffffff; --text: #111827; --muted: #6b7280; --light: #f3f4f6; }
+  body { font-family: 'Inter', sans-serif; color: var(--text); background: #f8f9fa; }
+
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 56px; background: var(--white); border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 100; }
+  .nav-brand { display: flex; align-items: center; gap: .5rem; font-weight: 700; font-size: 1rem; color: var(--text); text-decoration: none; }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a { text-decoration: none; color: var(--muted); font-size: .9rem; font-weight: 500; }
+  .nav-links a:hover { color: var(--text); }
+  .btn-access { background: var(--navy); color: var(--white); border: none; border-radius: 6px; padding: .45rem 1rem; font-size: .82rem; font-weight: 600; cursor: pointer; }
+
+  .steps-bar { background: var(--white); border-bottom: 1px solid #e5e7eb; padding: 1rem 2rem; }
+  .steps-inner { max-width: 900px; margin: 0 auto; display: flex; align-items: center; }
+  .step-item { display: flex; align-items: center; gap: .5rem; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: .8rem; font-weight: 700; }
+  .step-num.done { background: var(--navy); color: var(--white); }
+  .step-num.active { background: var(--orange); color: var(--white); }
+  .step-label { font-size: .82rem; font-weight: 600; }
+  .step-label.active { color: var(--orange); }
+  .step-label.done { color: var(--navy); }
+  .step-line { flex: 1; height: 1px; background: var(--navy); margin: 0 1rem; }
+
+  .main { max-width: 700px; margin: 2.5rem auto; padding: 0 1.5rem; }
+
+  .success-banner { background: linear-gradient(135deg, #166534 0%, #15803d 100%); border-radius: 16px; padding: 2rem; text-align: center; color: var(--white); margin-bottom: 1.5rem; }
+  .success-icon { font-size: 3rem; margin-bottom: .75rem; }
+  .success-banner h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: .4rem; }
+  .success-banner p { font-size: .88rem; opacity: .85; }
+  .ticket-num { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 8px; padding: .4rem 1.25rem; font-size: .9rem; font-weight: 700; margin-top: .85rem; letter-spacing: .1em; }
+
+  .ticket { background: var(--white); border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,.08); overflow: hidden; margin-bottom: 1.5rem; }
+  .ticket-header { background: var(--navy); color: var(--white); padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+  .ticket-header h2 { font-size: 1rem; font-weight: 700; }
+  .ticket-header span { font-size: .78rem; opacity: .65; }
+  .ticket-body { padding: 1.5rem; }
+  .ticket-route { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; }
+  .ticket-city { font-size: 1.2rem; font-weight: 800; }
+  .ticket-arrow { font-size: 1.5rem; color: var(--orange); }
+  .ticket-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-bottom: 1.25rem; }
+  @media(max-width:500px){ .ticket-grid { grid-template-columns: repeat(2,1fr); } }
+  .ticket-field { display: flex; flex-direction: column; }
+  .ticket-field .tf-label { font-size: .65rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .2rem; }
+  .ticket-field .tf-value { font-size: .9rem; font-weight: 600; }
+  .ticket-divider { height: 1px; background: #e5e7eb; margin: 1rem 0; border: none; border-top: 2px dashed #e5e7eb; }
+
+  .pasajero-card { background: var(--white); border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 1.5rem; }
+  .pasajero-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; }
+  .pasajero-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: .75rem; }
+  .pax-field .pf-label { font-size: .65rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .15rem; }
+  .pax-field .pf-value { font-size: .88rem; font-weight: 600; }
+
+  .total-card { background: var(--white); border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 1.5rem; }
+  .total-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; }
+  .total-row { display: flex; justify-content: space-between; font-size: .88rem; padding: .4rem 0; border-bottom: 1px solid #f3f4f6; }
+  .total-row:last-child { border: none; font-weight: 800; font-size: 1.1rem; padding-top: .75rem; }
+  .total-row:last-child span:last-child { color: var(--orange); }
+
+  .actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .btn-home { flex: 1; background: var(--navy); color: var(--white); border: none; border-radius: 10px; padding: .85rem; font-size: .95rem; font-weight: 700; cursor: pointer; transition: background .2s; }
+  .btn-home:hover { background: var(--orange); }
+  .btn-print { flex: 1; background: var(--white); color: var(--navy); border: 1.5px solid var(--navy); border-radius: 10px; padding: .85rem; font-size: .95rem; font-weight: 700; cursor: pointer; }
+  .btn-print:hover { background: var(--light); }
+
+  footer { background: var(--navy); color: rgba(255,255,255,.6); padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-top: 3rem; }
+  .footer-brand { color: var(--white); font-weight: 700; font-size: .9rem; }
+  .footer-copy { font-size: .72rem; margin-top: .2rem; }
+  .footer-links { display: flex; gap: 1.5rem; }
+  .footer-links a { color: rgba(255,255,255,.6); text-decoration: none; font-size: .75rem; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html">🚌 Misiones Transports</a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="rutas.html">Rutas</a>
+    <a href="horarios.html">Horarios</a>
+    <a href="terminal.html">Terminal</a>
+    <a href="accesibilidad.html">Accesibilidad</a>
+  </div>
+  <button class="btn-access"> Accesibilidad</button>
+</nav>
+
+<div class="steps-bar">
+  <div class="steps-inner">
+    <div class="step-item"><div class="step-num done">✓</div><span class="step-label done">Detalles del viaje</span></div>
+    <div class="step-line"></div>
+    <div class="step-item"><div class="step-num done">✓</div><span class="step-label done">Selección de asiento</span></div>
+    <div class="step-line"></div>
+    <div class="step-item"><div class="step-num done">✓</div><span class="step-label done">Datos del pasajero</span></div>
+    <div class="step-line"></div>
+    <div class="step-item"><div class="step-num active">4</div><span class="step-label active">Confirmación</span></div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="success-banner">
+    <div class="success-icon">✅</div>
+    <h1>¡Reserva confirmada!</h1>
+    <p>Tu pasaje fue registrado correctamente. Guardá el número de reserva.</p>
+    <div class="ticket-num" id="ticket-num">MT-000000</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <h2> Pasaje Misiones Transports</h2>
+      <span id="fecha-emision">—</span>
+    </div>
+    <div class="ticket-body">
+      <div class="ticket-route">
+        <div class="ticket-city">Buenos Aires</div>
+        <div class="ticket-arrow">→</div>
+        <div class="ticket-city" id="tk-dest">—</div>
+      </div>
+      <div class="ticket-grid">
+        <div class="ticket-field"><div class="tf-label">Salida</div><div class="tf-value" id="tk-salida">—</div></div>
+        <div class="ticket-field"><div class="tf-label">Clase</div><div class="tf-value" id="tk-clase">—</div></div>
+        <div class="ticket-field"><div class="tf-label">Asientos</div><div class="tf-value" id="tk-asientos">—</div></div>
+        <div class="ticket-field"><div class="tf-label">Terminal</div><div class="tf-value">Retiro, CABA</div></div>
+        <div class="ticket-field"><div class="tf-label">Pasajero</div><div class="tf-value" id="tk-nombre">—</div></div>
+        <div class="ticket-field"><div class="tf-label">DNI</div><div class="tf-value" id="tk-dni">—</div></div>
+      </div>
+      <hr class="ticket-divider">
+      <div style="font-size:.75rem;color:var(--muted);text-align:center">Presentá este comprobante en la plataforma de abordaje · Check-in 30 min antes</div>
+    </div>
+  </div>
+
+  <div class="pasajero-card">
+    <h3>👤 Datos del Pasajero</h3>
+    <div class="pasajero-grid">
+      <div class="pax-field"><div class="pf-label">Nombre completo</div><div class="pf-value" id="pax-nombre">—</div></div>
+      <div class="pax-field"><div class="pf-label">Documento</div><div class="pf-value" id="pax-doc">—</div></div>
+      <div class="pax-field"><div class="pf-label">Email</div><div class="pf-value" id="pax-email">—</div></div>
+      <div class="pax-field"><div class="pf-label">Teléfono</div><div class="pf-value" id="pax-tel">—</div></div>
+    </div>
+  </div>
+
+  <div class="total-card">
+    <h3> Resumen de Pago</h3>
+    <div class="total-row"><span>Tarifa base</span><span id="tot-subtotal">$0</span></div>
+    <div class="total-row"><span>Cargo de plataforma</span><span>$1.500</span></div>
+    <div class="total-row"><span>Total pagado</span><span id="tot-total">$0</span></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-home" onclick="window.location='index.html'">🏠 Volver al inicio</button>
+    <button class="btn-print" onclick="window.print()">🖨️ Imprimir comprobante</button>
+  </div>
+
+</div>
+
+<footer>
+  <div>
+    <div class="footer-brand">Misiones Transports</div>
+    <div class="footer-copy">© 2024 Misiones Transports · Reliable. Rhythmic. Navigational.</div>
+  </div>
+  <div class="footer-links">
+    <a href="#">Contact Us</a>
+    <a href="accesibilidad.html">Accessibility Statement</a>
+    <a href="#">Terms of Service</a>
+    <a href="#">Privacy Policy</a>
+  </div>
+</footer>
+
+<script>
+const viaje = JSON.parse(localStorage.getItem('viaje')) || {};
+const asientos = JSON.parse(localStorage.getItem('asientos')) || [];
+const pasajero = JSON.parse(localStorage.getItem('pasajero')) || {};
+const destinos = { posadas:'Posadas', iguazu:'Puerto Iguazú', obera:'Oberá', eldorado:'Eldorado' };
+
+// número de reserva aleatorio
+const ticketNum = 'MT-' + Math.floor(100000 + Math.random() * 900000);
+document.getElementById('ticket-num').textContent = ticketNum;
+
+// fecha emisión
+const hoy = new Date().toLocaleDateString('es-AR', { day:'numeric', month:'long', year:'numeric' });
+document.getElementById('fecha-emision').textContent = hoy;
+
+// ticket
+document.getElementById('tk-dest').textContent = destinos[viaje.dest] || '—';
+document.getElementById('tk-salida').textContent = viaje.salida ? viaje.salida + ' hs' : '—';
+document.getElementById('tk-clase').textContent = viaje.clase || '—';
+document.getElementById('tk-asientos').textContent = asientos.length ? asientos.join(', ') : '—';
+document.getElementById('tk-nombre').textContent = pasajero.nombre ? pasajero.nombre + ' ' + pasajero.apellido : '—';
+document.getElementById('tk-dni').textContent = pasajero.nroDoc || '—';
+
+// pasajero
+document.getElementById('pax-nombre').textContent = pasajero.nombre ? pasajero.nombre + ' ' + pasajero.apellido : '—';
+document.getElementById('pax-doc').textContent = pasajero.tipoDoc ? pasajero.tipoDoc.toUpperCase() + ' ' + pasajero.nroDoc : '—';
+document.getElementById('pax-email').textContent = pasajero.email || '—';
+document.getElementById('pax-tel').textContent = pasajero.telefono || '—';
+
+// totales
+const subtotal = (viaje.precio || 0) * (asientos.length || 1);
+const total = subtotal + 1500;
+document.getElementById('tot-subtotal').textContent = '$' + subtotal.toLocaleString('es-AR');
+document.getElementById('tot-total').textContent = '$' + total.toLocaleString('es-AR');
+
+// limpiar storage
+localStorage.removeItem('viaje');
+localStorage.removeItem('asientos');
+localStorage.removeItem('pasajero');
+</script>
+</body>
+</html>

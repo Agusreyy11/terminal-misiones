@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rutas - Misiones Transports</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #1a2744;
+    --orange: #c0511a;
+    --white: #ffffff;
+    --text: #111827;
+    --muted: #6b7280;
+    --light: #f3f4f6;
+  }
+
+  body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--white); }
+
+
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 56px; background: var(--white);
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .nav-brand { display: flex; align-items: center; gap: .5rem; font-weight: 700; font-size: 1rem; color: var(--text); text-decoration: none; }
+  .nav-links { display: flex; gap: 2rem; align-items: center; }
+  .nav-links a { text-decoration: none; color: var(--muted); font-size: .9rem; font-weight: 500; transition: color .2s; }
+  .nav-links a.active { color: var(--orange); border-bottom: 2px solid var(--orange); padding-bottom: 2px; }
+  .nav-links a:hover { color: var(--text); }
+  .btn-access { background: var(--navy); color: var(--white); border: none; border-radius: 6px; padding: .45rem 1rem; font-size: .82rem; font-weight: 600; cursor: pointer; }
+
+  .hero {
+    background: linear-gradient(135deg, var(--navy) 0%, #2d3a5a 100%);
+    padding: 3rem 2rem; color: var(--white);
+  }
+  .hero-inner { max-width: 1100px; margin: 0 auto; }
+  .eyebrow { font-size: .72rem; font-weight: 700; color: var(--orange); text-transform: uppercase; letter-spacing: .12em; margin-bottom: .5rem; }
+  .hero h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 700; margin-bottom: .5rem; }
+  .hero p { color: rgba(255,255,255,.7); font-size: .95rem; max-width: 600px; line-height: 1.6; margin-bottom: 1rem; }
+  .hero-badge { display: inline-flex; align-items: center; gap: .4rem; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 20px; padding: .35rem 1rem; font-size: .8rem; }
+
+  .filters-bar { background: var(--light); border-bottom: 1px solid #e5e7eb; padding: 1rem 2rem; }
+  .filters-inner { max-width: 1100px; margin: 0 auto; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+  .filter-group { display: flex; flex-direction: column; gap: .2rem; }
+  .filter-group label { font-size: .68rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+  .filter-group select { border: 1.5px solid #e5e7eb; border-radius: 8px; padding: .5rem .85rem; font-size: .85rem; font-family: 'Inter', sans-serif; color: var(--text); background: var(--white); outline: none; appearance: none; cursor: pointer; }
+  .filter-group select:focus { border-color: var(--navy); }
+  .btn-filter { background: var(--orange); color: var(--white); border: none; border-radius: 8px; padding: .55rem 1.25rem; font-size: .85rem; font-weight: 700; cursor: pointer; margin-top: 1rem; }
+
+  .main { max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem; display: grid; grid-template-columns: 1fr 340px; gap: 2rem; }
+  @media(max-width:768px){ .main { grid-template-columns: 1fr; } }
+
+  .routes-list h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1.25rem; }
+  .route-card {
+    border: 1.5px solid #e5e7eb; border-radius: 12px;
+    margin-bottom: 1rem; overflow: hidden;
+    transition: border-color .2s, box-shadow .2s; cursor: pointer;
+  }
+  .route-card:hover { border-color: var(--navy); box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+  .route-card.featured { border-color: var(--orange); }
+
+  .route-card-img {
+    height: 160px; background: center/cover no-repeat;
+    position: relative;
+  }
+  .route-card-img .overlay { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,.7) 100%); }
+  .route-card-img .img-tag {
+    position: absolute; bottom: .75rem; left: .75rem;
+    color: var(--white); font-weight: 700; font-size: 1.1rem;
+    margin-bottom: .4rem;
+  }
+  .route-card-img .img-subtag { position: absolute; bottom: .4rem; left: .75rem; color: rgba(255,255,255,.75); font-size: .75rem; }
+  .best-badge { position: absolute; top: .75rem; left: .75rem; background: var(--orange); color: var(--white); font-size: .65rem; font-weight: 700; padding: .2rem .6rem; border-radius: 4px; text-transform: uppercase; }
+
+  .route-card-body { padding: 1rem 1.25rem; display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: .75rem; align-items: center; }
+  @media(max-width:500px){ .route-card-body { grid-template-columns: 1fr 1fr; } }
+  .rc-label { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .2rem; }
+  .rc-value { font-size: .9rem; font-weight: 600; }
+  .rc-price { font-size: 1.2rem; font-weight: 800; color: var(--navy); }
+  .rc-price span { font-size: .7rem; font-weight: 400; color: var(--muted); display: block; }
+  .btn-ver { background: var(--navy); color: var(--white); border: none; border-radius: 8px; padding: .5rem 1rem; font-size: .8rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: background .2s; }
+  .btn-ver:hover { background: var(--orange); }
+
+  .sidebar { position: sticky; top: 80px; }
+  .sidebar-card { background: var(--navy); color: var(--white); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; }
+  .sidebar-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: .3rem; }
+  .sidebar-card p { font-size: .8rem; color: rgba(255,255,255,.65); margin-bottom: 1rem; line-height: 1.5; }
+
+  .map-svg-wrap { background: url('ruta14.jpg'); height: 180px; border-radius: 8px; padding: 1rem; display: flex; justify-content: center; }
+
+  .info-card { border: 1.5px solid #e5e7eb; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
+  .info-card h3 { font-size: .95rem; font-weight: 700; margin-bottom: .75rem; }
+  .info-row { display: flex; justify-content: space-between; padding: .4rem 0; border-bottom: 1px solid var(--light); font-size: .82rem; }
+  .info-row:last-child { border: none; }
+  .info-row span:first-child { color: var(--muted); }
+  .info-row span:last-child { font-weight: 600; }
+
+  footer { background: var(--navy); color: rgba(255,255,255,.6); padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; }
+  .footer-brand { color: var(--white); font-weight: 700; font-size: .9rem; }
+  .footer-copy { font-size: .72rem; margin-top: .2rem; }
+  .footer-links { display: flex; gap: 1.5rem; }
+  .footer-links a { color: rgba(255,255,255,.6); text-decoration: none; font-size: .75rem; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html"> Misiones Transports</a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="rutas.html" class="active">Rutas</a>
+    <a href="horarios.html">Horarios</a>
+    <a href="terminal.html">Terminal</a>
+    <a href="accesibilidad.html">Accesibilidad</a>
+  </div>
+  <button class="btn-access"> Accesibilidad</button>
+</nav>
+
+<section class="hero">
+  <div class="hero-inner">
+    <p class="eyebrow">Main Arteries</p>
+    <h1>Retiro — Misiones Route Explorer</h1>
+    <p>Desde el bullicio de Buenos Aires hasta la niebla de las Cataratas del Iguazú, recorriendo la Ruta 14 y la Ruta 12 a través del corazón del Litoral.</p>
+    <span class="hero-badge">🟠 Tráfico actual: Fluido (Óptimo)</span>
+  </div>
+</section>
+
+<div class="filters-bar">
+  <div class="filters-inner">
+    <div class="filter-group">
+      <label>Destino</label>
+      <select id="fil-destino" onchange="filtrar()">
+        <option value="todos">Todos los destinos</option>
+        <option value="posadas">Posadas</option>
+        <option value="obera">Oberá</option>
+        <option value="eldorado">Eldorado</option>
+        <option value="iguazu">Puerto Iguazú</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Clase de servicio</label>
+      <select id="fil-clase" onchange="filtrar()">
+        <option value="todos">Todas las clases</option>
+        <option value="semi">Semi-Cama</option>
+        <option value="cama">Cama</option>
+        <option value="suite">Suite Premium</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="routes-list">
+    <h2 id="result-count">4 rutas disponibles</h2>
+    <div id="routes-container"></div>
+  </div>
+
+  <div class="sidebar">
+    <div class="sidebar-card">
+      <h3>🗺️ Corredor Vivo</h3>
+      <p>Ruta 14 (El Corredor Mercosur) y Ruta 12</p>
+      <div class="map-svg-wrap">
+        
+        </svg>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <h3>📋 Info del Corredor</h3>
+      <div class="info-row"><span>Ruta principal</span><span>RN 14</span></div>
+      <div class="info-row"><span>Distancia</span><span>~1.350 km</span></div>
+      <div class="info-row"><span>Tiempo promedio</span><span>12–18 hs</span></div>
+      <div class="info-row"><span>Salidas diarias</span><span>6 servicios</span></div>
+      <div class="info-row"><span>Terminal origen</span><span>Retiro, CABA</span></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div>
+    <div class="footer-brand">Misiones Transports</div>
+    <div class="footer-copy">© 2024 Misiones Transports · Reliable. Rhythmic. Navigational.</div>
+  </div>
+  <div class="footer-links">
+    <a href="#">Contact Us</a>
+    <a href="accesibilidad.html">Accessibility Statement</a>
+    <a href="#">Terms of Service</a>
+    <a href="#">Privacy Policy</a>
+  </div>
+</footer>
+
+<script>
+const rutas = [
+  {
+    id: 'posadas',
+    nombre: 'Posadas',
+    subtag: 'La Puerta de Entrada',
+    distancia: '~1.000 km',
+    duracion: '~12h 30m',
+    clases: [
+      { clase:'semi', label:'Semi-Cama', precio:32500 },
+      { clase:'cama', label:'Cama 160°', precio:48000 },
+      { clase:'suite', label:'Suite Premium', precio:72000 },
+    ],
+    featured: false,
+    bg: 'posadas-bella.webp'
+  },
+  {
+    id: 'obera',
+    nombre: 'Oberá',
+    subtag: 'Ciudad de los Inmigrantes',
+    distancia: '~1.100 km',
+    duracion: '~14h 45m',
+    clases: [
+      { clase:'semi', label:'Semi-Cama', precio:30000 },
+      { clase:'cama', label:'Cama 160°', precio:45000 },
+      { clase:'suite', label:'Suite Premium', precio:68000 },
+    ],
+    featured: false,
+    bg: 'catedral.jpg'
+  },
+  {
+    id: 'eldorado',
+    nombre: 'Eldorado',
+    subtag: 'Corazón Productivo',
+    distancia: '~1.200 km',
+    duracion: '~16h 20m',
+    clases: [
+      { clase:'semi', label:'Semi-Cama', precio:33000 },
+      { clase:'cama', label:'Cama 160°', precio:50000 },
+      { clase:'suite', label:'Suite Premium', precio:75000 },
+    ],
+    featured: false,
+    bg: 'costanera.webp'
+  },
+  {
+    id: 'iguazu',
+    nombre: 'Puerto Iguazú',
+    subtag: 'Las Grandes Cataratas',
+    distancia: '~1.350 km',
+    duracion: '~18h 00m',
+    clases: [
+      { clase:'semi', label:'Semi-Cama', precio:38500 },
+      { clase:'cama', label:'Cama 160°', precio:58000 },
+      { clase:'suite', label:'Suite Premium', precio:89000 },
+    ],
+    featured: true,
+    bg: 'cataratas.jpg'
+  },
+];
+
+function filtrar() {
+  const dest = document.getElementById('fil-destino').value;
+  const clase = document.getElementById('fil-clase').value;
+  let data = rutas;
+  if (dest !== 'todos') data = data.filter(r => r.id === dest);
+  renderizar(data, clase);
+}
+
+function renderizar(data, claseFilter = 'todos') {
+  const c = document.getElementById('routes-container');
+  document.getElementById('result-count').textContent = `${data.length} destino${data.length !== 1 ? 's' : ''} disponible${data.length !== 1 ? 's' : ''}`;
+  if (!data.length) { c.innerHTML = '<p style="color:#6b7280;padding:1rem 0">Sin resultados.</p>'; return; }
+  c.innerHTML = data.map(r => {
+    const clasesFiltradas = claseFilter === 'todos' ? r.clases : r.clases.filter(cl => cl.clase === claseFilter);
+    if (!clasesFiltradas.length) return '';
+    return `
+    <div class="route-card${r.featured ? ' featured' : ''}">
+      <div class="route-card-img" style="background-image:url('${r.bg}')">
+        <div class="overlay"></div>
+        ${r.featured ? '<span class="best-badge">Recomendado</span>' : ''}
+        <div class="img-tag">${r.nombre}</div>
+        <div class="img-subtag">${r.subtag}</div>
+      </div>
+      <div class="route-card-body" style="grid-template-columns:1fr 1fr;gap:.75rem;padding:1rem 1.25rem">
+        <div>
+          <div class="rc-label">Distancia</div>
+          <div class="rc-value">${r.distancia}</div>
+          <div class="rc-label" style="margin-top:.5rem">Duración est.</div>
+          <div class="rc-value">${r.duracion}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.5rem">
+          ${clasesFiltradas.map(cl => `
+            <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid #e5e7eb;border-radius:8px;padding:.4rem .75rem">
+              <span style="font-size:.78rem;font-weight:600">${cl.label}</span>
+              <span style="font-size:.85rem;font-weight:800;color:var(--navy)">$${cl.precio.toLocaleString('es-AR')}</span>
+              <button class="btn-ver" style="padding:.3rem .75rem;font-size:.72rem" onclick="window.location='horarios.html'">Ver</button>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+renderizar(rutas);
+</script>
+</body>
+</html>

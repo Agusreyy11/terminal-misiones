@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Misiones Transports</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:   #1a2744;
+    --orange: #c0511a;
+    --orange-light: #e8651a;
+    --gray-bg: #6b7280;
+    --light:  #f3f4f6;
+    --white:  #ffffff;
+    --text:   #111827;
+    --muted:  #6b7280;
+  }
+
+  body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--white); }
+
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 56px;
+    background: var(--white);
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .nav-brand { display: flex; align-items: center; gap: .5rem; font-weight: 700; font-size: 1rem; color: var(--text); text-decoration: none; }
+  .nav-links { display: flex; gap: 2rem; align-items: center; }
+  .nav-links a { text-decoration: none; color: var(--muted); font-size: .9rem; font-weight: 500; transition: color .2s; }
+  .nav-links a.active { color: var(--orange); border-bottom: 2px solid var(--orange); padding-bottom: 2px; }
+  .nav-links a:hover { color: var(--text); }
+  .btn-access { background: var(--navy); color: var(--white); border: none; border-radius: 6px; padding: .45rem 1rem; font-size: .82rem; font-weight: 600; cursor: pointer; }
+
+  .hero {
+    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('Misiones.cole.png') center/cover no-repeat;
+    min-height: 380px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    align-items: center; padding: 3rem 2rem; gap: 2rem;
+  }
+  @media(max-width:768px){ .hero { grid-template-columns: 1fr; } }
+  .hero-text { color: var(--white); }
+  .hero-text h1 { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 700; line-height: 1.2; margin-bottom: .75rem; }
+  .hero-text p { font-size: .9rem; opacity: .85; margin-bottom: 1.25rem; line-height: 1.5; max-width: 340px; }
+  .hero-badges { display: flex; gap: .75rem; flex-wrap: wrap; }
+  .hero-badge { background: rgba(255,255,255,.15); color: var(--white); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: .35rem .85rem; font-size: .78rem; font-weight: 500; }
+
+  .search-card { background: var(--white); border-radius: 12px; padding: 1.5rem; box-shadow: 0 8px 32px rgba(0,0,0,.15); max-width: 380px; width: 100%; justify-self: end; }
+  .search-card h3 { font-size: .95rem; font-weight: 700; margin-bottom: 1.1rem; }
+  .form-group { margin-bottom: .85rem; }
+  .form-group label { display: block; font-size: .68rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .3rem; }
+  .form-group input, .form-group select { width: 100%; border: 1.5px solid #e5e7eb; border-radius: 8px; padding: .6rem .85rem; font-size: .88rem; font-family: 'Inter', sans-serif; color: var(--text); background: var(--white); outline: none; transition: border-color .2s; appearance: none; }
+  .form-group input:focus, .form-group select:focus { border-color: var(--navy); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+  .btn-buscar { width: 100%; background: var(--orange); color: var(--white); border: none; border-radius: 8px; padding: .75rem; font-size: .9rem; font-weight: 700; cursor: pointer; letter-spacing: .05em; transition: background .2s; }
+  .btn-buscar:hover { background: #a8461a; }
+
+  .rutas-section { padding: 3rem 2rem; max-width: 1100px; margin: 0 auto; }
+  .section-eyebrow { font-size: .72rem; font-weight: 700; color: var(--orange); text-transform: uppercase; letter-spacing: .12em; margin-bottom: .4rem; }
+  .section-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.5rem; }
+  .section-header h2 { font-size: 1.6rem; font-weight: 700; }
+  .ver-todas { font-size: .82rem; color: var(--muted); text-decoration: none; }
+  .ver-todas:hover { color: var(--orange); }
+
+  .rutas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media(max-width:640px){ .rutas-grid { grid-template-columns: 1fr; } }
+
+  .ruta-featured {
+    position: relative; border-radius: 12px; overflow: hidden; min-height: 340px;
+    background: linear-gradient(180deg, rgba(0,80,40,.3) 0%, rgba(0,40,20,.85) 100%),
+                url('imagen.jpg') center/cover;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 1.5rem; color: var(--white); cursor: pointer;
+  }
+  .rec-badge { background: var(--orange); color: var(--white); font-size: .65rem; font-weight: 700; padding: .2rem .6rem; border-radius: 4px; text-transform: uppercase; width: fit-content; margin-bottom: .5rem; }
+  .ruta-featured h3 { font-size: 1.3rem; font-weight: 700; margin-bottom: .2rem; }
+  .ruta-featured p { font-size: .78rem; opacity: .85; margin-bottom: .85rem; }
+  .btn-reservar { background: var(--white); color: var(--text); border: none; border-radius: 6px; padding: .45rem 1rem; font-size: .8rem; font-weight: 600; cursor: pointer; width: fit-content; }
+
+  .rutas-right { display: flex; flex-direction: column; gap: 1rem; }
+  .ruta-card { border: 1.5px solid #e5e7eb; border-radius: 10px; padding: 1rem 1.25rem; cursor: pointer; transition: border-color .2s; }
+  .ruta-card:hover { border-color: var(--navy); }
+  .ruta-card h4 { font-size: .95rem; font-weight: 600; }
+  .ruta-card .subtag { font-size: .75rem; color: var(--orange); font-weight: 500; margin-bottom: .5rem; }
+  .ruta-card .salida { font-size: .72rem; color: var(--muted); display: flex; justify-content: space-between; padding-top: .75rem; border-top: 1px solid #f3f4f6; }
+
+  .rutas-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .ruta-mini { border: 1.5px solid #e5e7eb; border-radius: 10px; padding: 1rem 1.25rem; cursor: pointer; transition: border-color .2s; display: flex; flex-direction: column; justify-content: space-between; min-height: 120px; }
+  .ruta-mini:hover { border-color: var(--navy); }
+  .ruta-mini h4 { font-size: .9rem; font-weight: 600; margin-bottom: .15rem; }
+  .ruta-mini .subtag { font-size: .72rem; color: var(--orange); font-weight: 500; }
+  .ruta-mini .precio { display: flex; justify-content: space-between; font-size: .88rem; font-weight: 700; margin-top: .75rem; }
+
+  .why-section { background: var(--navy); padding: 3.5rem 2rem; }
+  .why-inner { max-width: 1100px; margin: 0 auto; }
+  .why-inner h2 { color: var(--white); font-size: 1.5rem; font-weight: 700; margin-bottom: .4rem; }
+  .why-inner > p { color: rgba(255,255,255,.6); font-size: .88rem; margin-bottom: 2rem; }
+  .why-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }
+  @media(max-width:640px){ .why-grid { grid-template-columns: 1fr; } }
+  .why-card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 1.25rem; }
+  .why-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--orange); display: grid; place-items: center; font-size: 1rem; margin-bottom: .85rem; }
+  .why-card h4 { color: var(--white); font-size: .95rem; font-weight: 600; margin-bottom: .4rem; }
+  .why-card p { color: rgba(255,255,255,.55); font-size: .78rem; line-height: 1.5; }
+
+  .steps-section { padding: 3rem 2rem; max-width: 1100px; margin: 0 auto; }
+  .steps-card { border: 1.5px solid #e5e7eb; border-radius: 12px; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; }
+  @media(max-width:640px){ .steps-card { grid-template-columns: 1fr; } }
+  .steps-left { padding: 2rem; }
+  .steps-left h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 1.5rem; }
+  .step { display: flex; gap: .85rem; margin-bottom: 1.1rem; }
+  .step-icon { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--navy); display: grid; place-items: center; font-size: .9rem; flex-shrink: 0; }
+  .step-text h4 { font-size: .88rem; font-weight: 600; margin-bottom: .2rem; }
+  .step-text p { font-size: .78rem; color: var(--muted); line-height: 1.4; }
+  .steps-right { background: url('colectivo.avif') center/cover no-repeat; display: flex; align-items: center; justify-content: center; padding: 1.5rem; min-height: 280px; }
+  .map-container { width: 180px; }
+  .map-container svg { width: 100%; }
+
+  footer { background: var(--navy); color: rgba(255,255,255,.6); padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+  .footer-brand { color: var(--white); font-weight: 700; font-size: .9rem; }
+  .footer-copy { font-size: .72rem; margin-top: .2rem; }
+  .footer-links { display: flex; gap: 1.5rem; }
+  .footer-links a { color: rgba(255,255,255,.6); text-decoration: none; font-size: .75rem; }
+
+  #resultados { margin-top: .75rem; display: none; }
+  .res-item { border-top: 1px solid #e5e7eb; padding: .6rem 0; display: flex; justify-content: space-between; align-items: center; font-size: .82rem; }
+  .res-item strong { color: var(--navy); }
+  .res-price { color: var(--orange); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html"> Misiones Transports</a>
+  <div class="nav-links">
+    <a href="index.html" class="active">Inicio</a>
+    <a href="rutas.html">Rutas</a>
+    <a href="horarios.html">Horarios</a>
+    <a href="terminal.html">Terminal</a>
+    <a href="accesibilidad.html">Accesibilidad</a>
+  </div>
+  <button class="btn-access"> Accesibilidad</button>
+</nav>
+
+<section class="hero">
+  <div class="hero-text">
+    <h1>Conectamos el latido de la ciudad con el ritmo de la selva.</h1>
+    <p>Viajes directos y seguros desde Buenos Aires (Retiro) hacia el corazón de Misiones. Confort premium para trayectos inolvidables.</p>
+    <div class="hero-badges">
+      <span class="hero-badge">📶 Wi-Fi Premium</span>
+      <span class="hero-badge">🛏️ Cama Ejecutiva</span>
+    </div>
+  </div>
+
+  <div class="search-card">
+    <h3>🔍 Buscar Pasajes</h3>
+    <div class="form-group">
+      <label>Origen</label>
+      <input type="text" value="Buenos Aires (Retiro)" readonly>
+    </div>
+    <div class="form-group">
+      <label>Destino</label>
+      <select id="sel-destino">
+        <option value="">Seleccioná destino</option>
+        <option value="posadas">Posadas</option>
+        <option value="iguazu">Puerto Iguazú</option>
+        <option value="obera">Oberá</option>
+        <option value="eldorado">Eldorado</option>
+        <option value="apostoles">Apóstoles</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Fecha Ida</label>
+        <input type="date" id="sel-fecha">
+      </div>
+      <div class="form-group">
+        <label>Pasajeros</label>
+        <input type="number" id="sel-pasajeros" value="1" min="1" max="10">
+      </div>
+    </div>
+    <button class="btn-buscar" onclick="buscarViaje()">BUSCAR VIAJE →</button>
+    <div id="resultados"></div>
+  </div>
+</section>
+
+<section class="rutas-section">
+  <p class="section-eyebrow">Destinos Populares</p>
+  <div class="section-header">
+    <h2>Rutas Principales</h2>
+    <a href="rutas.html" class="ver-todas">Ver todas las rutas &rsaquo;</a>
+  </div>
+  <div class="rutas-grid">
+    <div class="ruta-featured" onclick="window.location='horarios.html'">
+      <span class="rec-badge">Recomendado</span>
+      <h3>Puerto Iguazú</h3>
+      <p>Desde $70,000 · Salidas diarias</p>
+      <button class="btn-reservar">Reservar Ahora</button>
+    </div>
+    <div class="rutas-right">
+      <div class="ruta-card" onclick="window.location='horarios.html'">
+        <h4>Posadas</h4>
+        <p class="subtag">La puerta a la tierra colorada</p>
+        <div class="salida"><span>PRÓXIMA SALIDA: 20:45 HS</span><span>→</span></div>
+      </div>
+      <div class="rutas-bottom">
+        <div class="ruta-mini" onclick="window.location='horarios.html'">
+          <div><h4>Oberá</h4><p class="subtag">Sede de los Inmigrantes</p></div>
+          <div class="precio"><span>$38.500</span><span>↗</span></div>
+        </div>
+        <div class="ruta-mini" onclick="window.location='horarios.html'">
+          <div><h4>Eldorado</h4><p class="subtag">Corazón productivo</p></div>
+          <div class="precio"><span>$41.200</span><span>↗</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="why-section">
+  <div class="why-inner">
+    <h2>¿Por qué viajar con Misiones Transports?</h2>
+    <p>Nuestra flota combina la última tecnología en seguridad vial con un servicio a bordo pensado para tu descanso total.</p>
+    <div class="why-grid">
+      <div class="why-card"><div class="why-icon">🛡️</div><h4>Seguridad 5 Estrellas</h4><p>Monitoreo satelital 24/7 y choferes con certificación internacional de excelencia.</p></div>
+      <div class="why-card"><div class="why-icon">🪑</div><h4>Confort Rítmico</h4><p>Butacas ergonómicas con reclinación de 180°, climatización inteligente y catering regional.</p></div>
+      <div class="why-card"><div class="why-icon">🕐</div><h4>Puntualidad Navegacional</h4><p>Garantizamos horarios de llegada precisos gracias a nuestra logística optimizada en tiempo real.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="steps-section">
+  <div class="steps-card">
+    <div class="steps-left">
+      <h2>Tu Viaje: Paso a Paso</h2>
+      <div class="step"><div class="step-icon">📍</div><div class="step-text"><h4>Salida: Terminal Retiro</h4><p>Check-in preferencial 30 min antes de la partida. Sala VIP exclusiva.</p></div></div>
+      <div class="step"><div class="step-icon">🍽️</div><div class="step-text"><h4>Experiencia a Bordo</h4><p>Cena caliente con sabores misioneros y conectividad ininterrumpida.</p></div></div>
+      <div class="step"><div class="step-icon">🌿</div><div class="step-text"><h4>Llegada a Destino</h4><p>Despertar en la selva. Servicio de traslados locales disponible.</p></div></div>
+    </div>
+    <div class="steps-right">
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>
+    <div class="footer-brand">Misiones Transports</div>
+    <div class="footer-copy">© 2024 Misiones Transports · Reliable. Rhythmic. Navigational.</div>
+  </div>
+  <div class="footer-links">
+    <a href="#">Contact Us</a>
+    <a href="accesibilidad.html">Accessibility Statement</a>
+    <a href="#">Terms of Service</a>
+    <a href="#">Privacy Policy</a>
+  </div>
+</footer>
+
+<script>
+  const datos = {
+    posadas:   [{ empresa:'Flecha Bus', salida:'19:30', llegada:'07:45', clase:'Semi-Cama', precio:42500 },
+                { empresa:'Via Bariloche', salida:'22:00', llegada:'10:30', clase:'Semi-Cama', precio:38900 }],
+    iguazu:    [{ empresa:'Flecha Bus', salida:'21:00', llegada:'14:30', clase:'Suite Premium', precio:68900 },
+                { empresa:'Crucero del Norte', salida:'20:00', llegada:'13:00', clase:'Cama', precio:51200 }],
+    obera:     [{ empresa:'Singer', salida:'20:30', llegada:'09:00', clase:'Semi-Cama', precio:38500 }],
+    eldorado:  [{ empresa:'Crucero del Norte', salida:'22:15', llegada:'12:15', clase:'Cama', precio:41200 }],
+    apostoles: [{ empresa:'Flecha Bus', salida:'22:30', llegada:'10:00', clase:'Semi-Cama', precio:35000 }],
+  };
+
+  document.getElementById('sel-fecha').valueAsDate = new Date();
+
+  function buscarViaje() {
+    const dest = document.getElementById('sel-destino').value;
+    const el = document.getElementById('resultados');
+    if (!dest) {
+      el.style.display = 'block';
+      el.innerHTML = '<div class="res-item" style="color:#c0511a">⚠️ Seleccioná un destino.</div>';
+      return;
+    }
+    const viajes = datos[dest] || [];
+    let html = '';
+    viajes.forEach(v => {
+      html += `<div class="res-item">
+        <div><strong>${v.empresa}</strong><br>
+        <span style="color:#6b7280;font-size:.75rem">${v.salida} → ${v.llegada} · ${v.clase}</span></div>
+        <span class="res-price">$${v.precio.toLocaleString('es-AR')}</span>
+      </div>`;
+    });
+    el.style.display = 'block';
+    el.innerHTML = html || '<div class="res-item">Sin resultados.</div>';
+  }
+</script>
+</body>
+</html>

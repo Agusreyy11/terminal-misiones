@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datos del Pasajero - Misiones Transports</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --navy: #1a2744; --orange: #c0511a; --white: #ffffff; --text: #111827; --muted: #6b7280; --light: #f3f4f6; }
+  body { font-family: 'Inter', sans-serif; color: var(--text); background: #f8f9fa; }
+
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 56px; background: var(--white); border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 100; }
+  .nav-brand { display: flex; align-items: center; gap: .5rem; font-weight: 700; font-size: 1rem; color: var(--text); text-decoration: none; }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a { text-decoration: none; color: var(--muted); font-size: .9rem; font-weight: 500; }
+  .nav-links a:hover { color: var(--text); }
+  .btn-access { background: var(--navy); color: var(--white); border: none; border-radius: 6px; padding: .45rem 1rem; font-size: .82rem; font-weight: 600; cursor: pointer; }
+
+  .steps-bar { background: var(--white); border-bottom: 1px solid #e5e7eb; padding: 1rem 2rem; }
+  .steps-inner { max-width: 900px; margin: 0 auto; display: flex; align-items: center; }
+  .step-item { display: flex; align-items: center; gap: .5rem; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: .8rem; font-weight: 700; }
+  .step-num.done { background: var(--navy); color: var(--white); }
+  .step-num.active { background: var(--orange); color: var(--white); }
+  .step-num.pending { background: var(--light); color: var(--muted); }
+  .step-label { font-size: .82rem; font-weight: 600; }
+  .step-label.active { color: var(--orange); }
+  .step-label.done { color: var(--navy); }
+  .step-label.pending { color: var(--muted); }
+  .step-line { flex: 1; height: 1px; background: #e5e7eb; margin: 0 1rem; }
+  .step-line.done { background: var(--navy); }
+
+  .main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem; display: grid; grid-template-columns: 1fr 300px; gap: 1.5rem; }
+  @media(max-width:700px){ .main { grid-template-columns: 1fr; } }
+
+  .form-card { background: var(--white); border-radius: 16px; padding: 1.75rem; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+  .form-card h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media(max-width:500px){ .form-grid { grid-template-columns: 1fr; } }
+  .form-full { grid-column: 1 / -1; }
+
+  .form-group { display: flex; flex-direction: column; gap: .35rem; }
+  .form-group label { font-size: .78rem; font-weight: 600; color: var(--text); }
+  .form-group label span { color: var(--orange); }
+  .form-group input, .form-group select {
+    border: 1.5px solid #e5e7eb; border-radius: 8px;
+    padding: .65rem .85rem; font-size: .88rem;
+    font-family: 'Inter', sans-serif; color: var(--text);
+    background: var(--white); outline: none;
+    transition: border-color .2s;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--orange); }
+  .form-group input::placeholder { color: #9ca3af; }
+  .form-group input.error, .form-group select.error { border-color: #ef4444; }
+  .error-msg { font-size: .72rem; color: #ef4444; margin-top: .15rem; display: none; }
+  .error-msg.show { display: block; }
+
+  .summary-card { background: var(--white); border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.06); position: sticky; top: 76px; }
+  .summary-section { margin-bottom: 1rem; }
+  .summary-label { font-size: .65rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .3rem; }
+  .summary-value { font-size: .88rem; font-weight: 600; }
+  .summary-muted { font-size: .78rem; color: var(--muted); }
+  .summary-divider { height: 1px; background: #e5e7eb; margin: .85rem 0; }
+  .summary-row { display: flex; justify-content: space-between; font-size: .82rem; padding: .25rem 0; }
+  .summary-row.total { font-weight: 800; font-size: 1rem; padding-top: .5rem; }
+  .summary-row.total span:last-child { color: var(--orange); }
+
+  .btn-continuar { width: 100%; background: var(--orange); color: var(--white); border: none; border-radius: 10px; padding: .85rem; font-size: .95rem; font-weight: 700; cursor: pointer; margin-top: 1rem; transition: background .2s; }
+  .btn-continuar:hover { background: #a8461a; }
+  .btn-volver { width: 100%; background: var(--white); color: var(--navy); border: 1.5px solid #e5e7eb; border-radius: 10px; padding: .75rem; font-size: .88rem; font-weight: 600; cursor: pointer; margin-top: .5rem; }
+  .btn-volver:hover { border-color: var(--navy); }
+
+  .note-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: .85rem; margin-top: 1rem; font-size: .75rem; color: #1e40af; line-height: 1.5; }
+
+  footer { background: var(--navy); color: rgba(255,255,255,.6); padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-top: 3rem; }
+  .footer-brand { color: var(--white); font-weight: 700; font-size: .9rem; }
+  .footer-copy { font-size: .72rem; margin-top: .2rem; }
+  .footer-links { display: flex; gap: 1.5rem; }
+  .footer-links a { color: rgba(255,255,255,.6); text-decoration: none; font-size: .75rem; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html">🚌 Misiones Transports</a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="rutas.html">Rutas</a>
+    <a href="horarios.html">Horarios</a>
+    <a href="terminal.html">Terminal</a>
+    <a href="accesibilidad.html">Accesibilidad</a>
+  </div>
+  <button class="btn-access"> Accesibilidad</button>
+</nav>
+
+<div class="steps-bar">
+  <div class="steps-inner">
+    <div class="step-item">
+      <div class="step-num done">✓</div>
+      <span class="step-label done">Detalles del viaje</span>
+    </div>
+    <div class="step-line done"></div>
+    <div class="step-item">
+      <div class="step-num done">✓</div>
+      <span class="step-label done">Selección de asiento</span>
+    </div>
+    <div class="step-line done"></div>
+    <div class="step-item">
+      <div class="step-num active">3</div>
+      <span class="step-label active">Datos del pasajero</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-num pending">4</div>
+      <span class="step-label pending">Confirmación</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="form-card">
+    <h2>Datos personales</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Nombre <span>*</span></label>
+        <input type="text" id="nombre" placeholder="Escribí el nombre">
+        <span class="error-msg" id="err-nombre">Campo requerido</span>
+      </div>
+      <div class="form-group">
+        <label>Apellido <span>*</span></label>
+        <input type="text" id="apellido" placeholder="Escribí el apellido">
+        <span class="error-msg" id="err-apellido">Campo requerido</span>
+      </div>
+      <div class="form-group">
+        <label>Nacionalidad <span>*</span></label>
+        <select id="nacionalidad">
+          <option value="argentina">Argentina</option>
+          <option value="brasil">Brasil</option>
+          <option value="chile">Chile</option>
+          <option value="uruguay">Uruguay</option>
+          <option value="paraguay">Paraguay</option>
+          <option value="otra">Otra</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tipo de documento <span>*</span></label>
+        <select id="tipo-doc">
+          <option value="dni">DNI</option>
+          <option value="pasaporte">Pasaporte</option>
+          <option value="cedula">Cédula</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Número de documento <span>*</span></label>
+        <input type="text" id="nro-doc" placeholder="Escribí el número de documento">
+        <span class="error-msg" id="err-nro-doc">Campo requerido</span>
+      </div>
+      <div class="form-group">
+        <label>Sexo <span>*</span></label>
+        <select id="sexo">
+          <option value="">Seleccioná el sexo</option>
+          <option value="m">Masculino</option>
+          <option value="f">Femenino</option>
+          <option value="x">No binario</option>
+        </select>
+        <span class="error-msg" id="err-sexo">Campo requerido</span>
+      </div>
+      <div class="form-group form-full">
+        <label>Fecha de nacimiento <span>*</span></label>
+        <input type="date" id="fecha-nac">
+        <span class="error-msg" id="err-fecha-nac">Campo requerido</span>
+      </div>
+      <div class="form-group form-full">
+        <label>Email <span>*</span></label>
+        <input type="email" id="email" placeholder="tucorreo@email.com">
+        <span class="error-msg" id="err-email">Ingresá un email válido</span>
+      </div>
+      <div class="form-group form-full">
+        <label>Teléfono</label>
+        <input type="tel" id="telefono" placeholder="+54 11 0000-0000">
+      </div>
+    </div>
+  </div>
+
+  <div class="summary-card">
+    <div class="summary-section">
+      <div style="font-size:.75rem;font-weight:700;color:var(--orange);margin-bottom:.5rem">→ IDA</div>
+      <div class="summary-label">Origen</div>
+      <div class="summary-value">Buenos Aires (Retiro)</div>
+    </div>
+    <div class="summary-section">
+      <div class="summary-label">Destino</div>
+      <div class="summary-value" id="sum-dest">—</div>
+    </div>
+    <div class="summary-section">
+      <div class="summary-label">Salida</div>
+      <div class="summary-value" id="sum-salida">—</div>
+    </div>
+    <div class="summary-section">
+      <div class="summary-label">Clase</div>
+      <div class="summary-value" id="sum-clase">—</div>
+    </div>
+    <div class="summary-section">
+      <div class="summary-label">Asientos</div>
+      <div class="summary-value" id="sum-asientos">—</div>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-row"><span>Tarifa base</span><span id="sum-subtotal">$0</span></div>
+    <div class="summary-row"><span>Cargo de plataforma</span><span>$1.500</span></div>
+    <div class="summary-divider"></div>
+    <div class="summary-row total"><span>Total</span><span id="sum-total">$0</span></div>
+    <button class="btn-continuar" onclick="continuar()">Continuar al Pago</button>
+    <button class="btn-volver" onclick="window.location='asientos.html'">Volver</button>
+    <div class="note-box">ℹ️ ¿Viajás con menores? Llevá impreso el formulario correspondiente según la normativa vigente.</div>
+  </div>
+</div>
+
+<footer>
+  <div>
+    <div class="footer-brand">Misiones Transports</div>
+    <div class="footer-copy">© 2024 Misiones Transports · Reliable. Rhythmic. Navigational.</div>
+  </div>
+  <div class="footer-links">
+    <a href="#">Contact Us</a>
+    <a href="accesibilidad.html">Accessibility Statement</a>
+    <a href="#">Terms of Service</a>
+    <a href="#">Privacy Policy</a>
+  </div>
+</footer>
+
+<script>
+const viaje = JSON.parse(localStorage.getItem('viaje')) || {};
+const asientos = JSON.parse(localStorage.getItem('asientos')) || [];
+const destinos = { posadas:'Posadas', iguazu:'Puerto Iguazú', obera:'Oberá', eldorado:'Eldorado' };
+
+document.getElementById('sum-dest').textContent = destinos[viaje.dest] || '—';
+document.getElementById('sum-salida').textContent = viaje.salida ? viaje.salida + ' hs' : '—';
+document.getElementById('sum-clase').textContent = viaje.clase || '—';
+document.getElementById('sum-asientos').textContent = asientos.length ? asientos.join(', ') : '—';
+
+const subtotal = (viaje.precio || 0) * (asientos.length || 1);
+const total = subtotal + 1500;
+document.getElementById('sum-subtotal').textContent = '$' + subtotal.toLocaleString('es-AR');
+document.getElementById('sum-total').textContent = '$' + total.toLocaleString('es-AR');
+
+function continuar() {
+  let ok = true;
+  const campos = [
+    { id:'nombre', err:'err-nombre' },
+    { id:'apellido', err:'err-apellido' },
+    { id:'nro-doc', err:'err-nro-doc' },
+    { id:'fecha-nac', err:'err-fecha-nac' },
+  ];
+  campos.forEach(c => {
+    const el = document.getElementById(c.id);
+    const err = document.getElementById(c.err);
+    if (!el.value.trim()) {
+      el.classList.add('error');
+      err.classList.add('show');
+      ok = false;
+    } else {
+      el.classList.remove('error');
+      err.classList.remove('show');
+    }
+  });
+  if (document.getElementById('sexo').value === '') {
+    document.getElementById('sexo').classList.add('error');
+    document.getElementById('err-sexo').classList.add('show');
+    ok = false;
+  }
+  const email = document.getElementById('email');
+  if (!email.value.includes('@')) {
+    email.classList.add('error');
+    document.getElementById('err-email').classList.add('show');
+    ok = false;
+  }
+  if (ok) {
+    localStorage.setItem('pasajero', JSON.stringify({
+      nombre: document.getElementById('nombre').value,
+      apellido: document.getElementById('apellido').value,
+      nroDoc: document.getElementById('nro-doc').value,
+      tipoDoc: document.getElementById('tipo-doc').value,
+      sexo: document.getElementById('sexo').value,
+      fechaNac: document.getElementById('fecha-nac').value,
+      email: document.getElementById('email').value,
+      telefono: document.getElementById('telefono').value,
+    }));
+    window.location = 'confirmacion.html';
+  }
+}
+</script>
+</body>
+</html>
